@@ -29,16 +29,23 @@ import java.util.UUID;
 public class InventorySpiritEntity extends Entity {
 
     private final List<StoredItemRecord> storedItems = new ArrayList<>();
+    private int totalExperience;
     private UUID owner;
 
     public InventorySpiritEntity(EntityType<?> entityType, Level level) {
         super(entityType, level);
+        this.totalExperience = 0;
         this.owner = new UUID(0, 0);
     }
 
     public static InventorySpiritEntity fromPlayer(Player player, boolean clearPlayer) {
         InventorySpiritEntity entity = new InventorySpiritEntity(ISEntities.INVENTORY_SPIRIT.get(), player.level());
+
         entity.setOwner(player.getUUID());
+
+        entity.setTotalExperience(player.totalExperience);
+        if (clearPlayer) player.totalExperience = 0;
+
         for (int i = 0; i < player.getInventory().items.size(); i++) {
             ItemStack stack = player.getInventory().items.get(i);
             if (!stack.isEmpty()) {
@@ -134,6 +141,14 @@ public class InventorySpiritEntity extends Entity {
         this.owner = owner;
     }
 
+    public int getTotalExperience() {
+        return totalExperience;
+    }
+
+    public void setTotalExperience(int totalExperience) {
+        this.totalExperience = totalExperience;
+    }
+
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
 
@@ -151,6 +166,7 @@ public class InventorySpiritEntity extends Entity {
             }
         }
         this.owner = compoundTag.getUUID("Owner");
+        this.totalExperience = compoundTag.getInt("TotalExperience");
     }
 
     @Override
@@ -162,6 +178,7 @@ public class InventorySpiritEntity extends Entity {
         }
         compoundTag.put("StoredItemsList", list);
         compoundTag.putUUID("Owner", this.owner);
+        compoundTag.putInt("TotalExperience", this.totalExperience);
     }
 
     @Override
