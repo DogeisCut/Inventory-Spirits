@@ -8,11 +8,13 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -101,11 +103,20 @@ public class InventorySpiritEntity extends Entity {
         for (StoredItemRecord storedItem : storedItems) {
             this.spawnAtLocation(storedItem.stack(), 0.4f);
         }
+        if (this.totalExperience > 0 && this.level() instanceof ServerLevel serverLevel) {
+            ExperienceOrb.award(serverLevel, this.position(), this.totalExperience);
+            this.totalExperience = 0;
+        }
         this.remove(RemovalReason.KILLED);
     }
 
     public void collect(Player player) {
+        if (this.totalExperience > 0) {
+            player.giveExperiencePoints(this.totalExperience);
+            this.totalExperience = 0;
+        }
 
+        this.discard();
     }
 
     public void storeItem(ItemStack stack, String category, int originalSlot, String subType) {
@@ -165,8 +176,8 @@ public class InventorySpiritEntity extends Entity {
                 this.storedItems.add(StoredItemRecord.load(tag, registries));
             }
         }
-        this.owner = compoundTag.getUUID("Owner");
-        this.totalExperience = compoundTag.getInt("TotalExperience");
+        if (compoundTag.contains("Owner")) this.owner = compoundTag.getUUID("Owner");
+        if (compoundTag.contains("TotalExperience")) this.totalExperience = compoundTag.getInt("TotalExperience");
     }
 
     @Override
