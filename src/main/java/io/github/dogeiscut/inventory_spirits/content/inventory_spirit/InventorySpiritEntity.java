@@ -2,6 +2,8 @@ package io.github.dogeiscut.inventory_spirits.content.inventory_spirit;
 
 import io.github.dogeiscut.inventory_spirits.registry.ISEntities;
 import io.github.dogeiscut.inventory_spirits.registry.ISParticles;
+import lain.mods.cos.api.CosArmorAPI;
+import lain.mods.cos.api.inventory.CAStacksBase;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -15,6 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 import top.theillusivec4.curios.api.CuriosApi;
@@ -72,14 +75,30 @@ public class InventorySpiritEntity extends Entity {
                 }
             });
         });
+
+        if (ModList.get().isLoaded("cosmeticarmorreworked")) {
+            CAStacksBase cosArmor = CosArmorAPI.getCAStacks(player.getUUID());
+            for (int i = 0; i < cosArmor.getSlots(); i++) {
+                ItemStack stack = cosArmor.getStackInSlot(i);
+                if (!stack.isEmpty()) {
+                    entity.storeItem(stack, "cosmetic_armor", i, "armor");
+                    if (clearPlayer) cosArmor.setStackInSlot(i, ItemStack.EMPTY);
+                }
+            }
+        }
+
         return entity;
     }
 
     public void drop() {
         for (StoredItemRecord storedItem : storedItems) {
-            Containers.dropItemStack(this.level(), this.getX() + 0.5d, this.getY() + 0.5d, this.getZ() + 0.5d, storedItem.stack());
+            this.spawnAtLocation(storedItem.stack(), 0.4f);
         }
         this.remove(RemovalReason.KILLED);
+    }
+
+    public void collect(Player player) {
+
     }
 
     public void storeItem(ItemStack stack, String category, int originalSlot, String subType) {
@@ -91,10 +110,16 @@ public class InventorySpiritEntity extends Entity {
     @Override
     public InteractionResult interact(Player player, InteractionHand hand) {
         if (!this.level().isClientSide()) {
-            this.drop();
+            this.collect(player);
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.CONSUME;
+    }
+
+    @Override
+    public boolean skipAttackInteraction(Entity entity) {
+        this.drop();
+        return false;
     }
 
     public List<StoredItemRecord> getStoredItems() {
