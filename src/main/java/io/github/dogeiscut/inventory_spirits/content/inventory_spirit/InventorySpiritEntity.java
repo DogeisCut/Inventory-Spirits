@@ -117,7 +117,7 @@ public class InventorySpiritEntity extends Entity {
     @Override
     protected void readAdditionalSaveData(CompoundTag compoundTag) {
         this.storedItems.clear();
-        if (compoundTag.contains("StoredItemList", ListTag.TAG_LIST)) {
+        if (compoundTag.contains("StoredItemsList", ListTag.TAG_LIST)) {
             ListTag list = compoundTag.getList("StoredItemsList", ListTag.TAG_COMPOUND);
             HolderLookup.Provider registries = this.registryAccess();
             for (int i = 0; i < list.size(); i++) {
@@ -125,6 +125,7 @@ public class InventorySpiritEntity extends Entity {
                 this.storedItems.add(StoredItemRecord.load(tag, registries));
             }
         }
+        this.owner = compoundTag.getUUID("Owner");
     }
 
     @Override
