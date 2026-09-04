@@ -1,0 +1,43 @@
+- [ ] Curios Support
+- [ ] Cosmetic Armor Reworked Support
+- [ ] Aeronautics support
+- [ ] Punch to destroy and drop items
+- [ ] Right click to collect into inventory
+- [ ] cool ambient sounds
+- [ ] cool sounds
+- [ ] maybe rename these and this entire mod to "Death Spirits"
+- [ ] Config Options
+  - [ ] Create on void death (default: true)
+  - [ ] Create for creative players (default: true)
+  - [ ] Create for empty inventories (default: false)
+  - [ ] Allow stealing (default: true)
+  - [ ] Max spirits per player (drops oldest) (default: Infinity)
+  - [ ] Store Behavior on death (default: store experience and items) (options: store experience and drop items, store experience and items, drop experience and store items)
+  - [ ] Experience returns on collect (default: whatever minecraft does)
+  - [ ] Punch drops items (default: true) (false would make this act like right-clicking)
+  - [ ] Float in lava (default: true)
+  - [ ] Float in water (default: false)
+  - [ ] Glow Effect on spirits (default: false)
+  - [ ] Auto-destroy timer (default: Infinity)
+  - [ ] Destroy behavior (drop, disappear) (default: drop)
+  - [ ] Drop overflowing items (default: true) (false would make the spirit stick around, only giving what it can fit until you clear your inventory)
+  - [ ] Retain inventory layout (default: true)
+  - [ ] Void death height offset (default: 0 blocks)
+  - [ ] Cap void death to minimum block height (default: true)
+  - [ ] Enable /dropspirits command (default: false)
+  - [ ] Remove spirit on collection (default: true)
+  - [ ] Show GUI on interact (default: false) (just auto collects instead)
+  - [ ] Moveable spirits (default: false)
+  - [ ] Solid spirits (default: false)
+  - [ ] Pushable spirits (default: false)
+  - [ ] Leashable spirits (default: false)
+  - [ ] Push spirits out of these blocks (default: bedrock, void_air, end_portal_frame, end_portal, end_gateway, nether_portal)
+  - [ ] Spirits go through portals (default: false)
+  - [ ] Auto collect distance (default: disabled) (is normally a radius)
+  - [ ] Spirit ambient noises (default: true)
+  - [ ] Spirit particles (default: true)
+  - [ ] Show spirit owner on hover (default: false) (will be done through fancy outlined text rather than a nametag)
+  - [ ] Require shift right click to collect (default: false)
+  - [ ] Allow spirits to pick up items (default: false)
+  - [ ] Allow spirits to pick up experience (default: false)
+  - Some of these are mutually exclusive and need to be merged accordingly

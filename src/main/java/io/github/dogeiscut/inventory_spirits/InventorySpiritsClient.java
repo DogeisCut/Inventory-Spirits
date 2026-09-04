@@ -1,5 +1,6 @@
 package io.github.dogeiscut.inventory_spirits;
 
+import io.github.dogeiscut.inventory_spirits.content.inventory_spirit.InventorySpiritDustParticle;
 import io.github.dogeiscut.inventory_spirits.content.inventory_spirit.InventorySpiritModel;
 import io.github.dogeiscut.inventory_spirits.content.inventory_spirit.InventorySpiritRenderer;
 import io.github.dogeiscut.inventory_spirits.registry.ISEntities;
@@ -29,6 +30,6 @@ public class InventorySpiritsClient {
 
     @SubscribeEvent
     public static void registerParticleProviders(RegisterParticleProvidersEvent event) {
-        event.registerSpriteSet(ISParticles.);
+        event.registerSpriteSet(ISParticles.INVENTORY_SPIRIT_DUST.get(), InventorySpiritDustParticle.Provider::new);
     }
 }
