@@ -5,6 +5,7 @@ import io.github.dogeiscut.inventory_spirits.registry.ISParticles;
 import lain.mods.cos.api.CosArmorAPI;
 import lain.mods.cos.api.inventory.CAStacksBase;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -20,9 +21,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 import top.theillusivec4.curios.api.CuriosApi;
+import top.theillusivec4.curios.api.type.inventory.ICurioStacksHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,12 +114,112 @@ public class InventorySpiritEntity extends Entity {
     }
 
     public void collect(Player player) {
+        if (this.level().isClientSide()) return;
+
+        for (StoredItemRecord record : storedItems) {
+            restoreItem(player, record);
+        }
+        storedItems.clear();
+
         if (this.totalExperience > 0) {
             player.giveExperiencePoints(this.totalExperience);
             this.totalExperience = 0;
         }
 
         this.discard();
+    }
+
+    // TODO: wire this to a config option once ISConfig is implemented.
+    // false = fall back to a normal inventory placement when the original slot is occupied.
+    // true = always force the item back into its original slot, kicking whatever's currently there onto the ground/inventory.
+    private static final boolean KICK_ITEMS_FROM_ORIGINAL_SLOT = false;
+
+    private void restoreItem(Player player, StoredItemRecord record) {
+        ItemStack stack = record.stack();
+
+        switch (record.category()) {
+            case "inventory" -> {
+                NonNullList<ItemStack> inv = switch (record.subType()) {
+                    case "armor" -> player.getInventory().armor;
+                    case "offhand" -> player.getInventory().offhand;
+                    default -> player.getInventory().items;
+                };
+                restoreToVanillaSlot(player, inv, record.originalSlot(), stack);
+            }
+            case "curios" -> {
+                ICurioStacksHandler stacksHandler = CuriosApi.getCuriosInventory(player)
+                        .map(handler -> handler.getCurios().get(record.subType()))
+                        .orElse(null);
+                if (stacksHandler != null) {
+                    restoreToHandlerSlot(player, stacksHandler.getStacks(), record.originalSlot(), stack);
+                } else {
+                    ItemStack remainder = stack.copy();
+                    player.getInventory().add(remainder);
+                    player.drop(remainder, true);
+                }
+            }
+            case "cosmetic_armor" -> {
+                if (ModList.get().isLoaded("cosmeticarmorreworked")) {
+                    restoreToHandlerSlot(player, CosArmorAPI.getCAStacks(player.getUUID()), record.originalSlot(), stack);
+                } else {
+                    ItemStack remainder = stack.copy();
+                    player.getInventory().add(remainder);
+                    player.drop(remainder, true);
+                }
+            }
+        }
+    }
+
+    private void restoreToVanillaSlot(Player player, NonNullList<ItemStack> inv, int slot, ItemStack stack) {
+        if (slot < 0 || slot >= inv.size()) {
+            player.drop(stack, true);
+            return;
+        }
+
+        ItemStack current = inv.get(slot);
+        if (current.isEmpty()) {
+            inv.set(slot, stack.copy());
+            return;
+        }
+
+        if (KICK_ITEMS_FROM_ORIGINAL_SLOT) {
+            ItemStack remainder = current.copy();
+            player.getInventory().add(remainder);
+            player.drop(remainder, true);
+
+            inv.set(slot, stack.copy());
+            return;
+        }
+
+        ItemStack remainder = stack.copy();
+        player.getInventory().add(remainder);
+        player.drop(remainder, true);
+    }
+
+    private void restoreToHandlerSlot(Player player, IItemHandlerModifiable handler, int slot, ItemStack stack) {
+        if (slot < 0 || slot >= handler.getSlots()) {
+            player.drop(stack, true);
+            return;
+        }
+
+        ItemStack current = handler.getStackInSlot(slot);
+        if (current.isEmpty()) {
+            handler.setStackInSlot(slot, stack.copy());
+            return;
+        }
+
+        if (KICK_ITEMS_FROM_ORIGINAL_SLOT) {
+            ItemStack remainder = current.copy();
+            player.getInventory().add(remainder);
+            player.drop(remainder, true);
+
+            handler.setStackInSlot(slot, stack.copy());
+            return;
+        }
+
+        ItemStack remainder = stack.copy();
+        player.getInventory().add(remainder);
+        player.drop(remainder, true);
     }
 
     public void storeItem(ItemStack stack, String category, int originalSlot, String subType) {
