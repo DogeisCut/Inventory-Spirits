@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 public class InventorySpirits {
     public static final String ID = "inventory_spirits";
 
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
     public InventorySpirits(IEventBus modEventBus, ModContainer modContainer) {
 
         ISEntities.register(modEventBus);

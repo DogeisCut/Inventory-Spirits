@@ -22,6 +22,7 @@
   - [ ] Destroy behavior (drop, disappear) (default: drop)
   - [ ] Drop overflowing items (default: true) (false would make the spirit stick around, only giving what it can fit until you clear your inventory)
   - [ ] Retain inventory layout (default: true)
+  - [ ] Drop existing inventory on collect (default: false)
   - [ ] Void death height offset (default: 0 blocks)
   - [ ] Cap void death to minimum block height (default: true)
   - [ ] Enable /dropspirits command (default: false)
@@ -40,4 +41,5 @@
   - [ ] Require shift right click to collect (default: false)
   - [ ] Allow spirits to pick up items (default: false)
   - [ ] Allow spirits to pick up experience (default: false)
+  - [ ] Mob inventory spirit drop behavior (default: never) (options: always, when holding player items, never)
   - Some of these are mutually exclusive and need to be merged accordingly
