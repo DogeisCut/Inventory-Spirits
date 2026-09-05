@@ -107,18 +107,20 @@ public class InventorySpiritEntity extends Entity {
             }
         }
 
-        CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
-            handler.getCurios().forEach((identifier, stacksHandler) -> {
-                var stacks = stacksHandler.getStacks();
-                for (int i = 0; i < stacks.getSlots(); i++) {
-                    ItemStack stack = stacks.getStackInSlot(i);
-                    if (!stack.isEmpty()) {
-                        entity.storeItem(stack, "curios", i, identifier);
-                        if (clearPlayer) stacks.setStackInSlot(i, ItemStack.EMPTY);
+        if (ModList.get().isLoaded("curios")) {
+            CuriosApi.getCuriosInventory(player).ifPresent(handler -> {
+                handler.getCurios().forEach((identifier, stacksHandler) -> {
+                    var stacks = stacksHandler.getStacks();
+                    for (int i = 0; i < stacks.getSlots(); i++) {
+                        ItemStack stack = stacks.getStackInSlot(i);
+                        if (!stack.isEmpty()) {
+                            entity.storeItem(stack, "curios", i, identifier);
+                            if (clearPlayer) stacks.setStackInSlot(i, ItemStack.EMPTY);
+                        }
                     }
-                }
+                });
             });
-        });
+        }
 
         if (ModList.get().isLoaded("cosmeticarmorreworked")) {
             CAStacksBase cosArmor = CosArmorAPI.getCAStacks(player.getUUID());
@@ -193,11 +195,15 @@ public class InventorySpiritEntity extends Entity {
                 restoreToVanillaSlot(player, inv, record.originalSlot(), stack);
             }
             case "curios" -> {
-                ICurioStacksHandler stacksHandler = CuriosApi.getCuriosInventory(player)
-                        .map(handler -> handler.getCurios().get(record.subType()))
-                        .orElse(null);
-                if (stacksHandler != null) {
-                    restoreToHandlerSlot(player, stacksHandler.getStacks(), record.originalSlot(), stack);
+                if (ModList.get().isLoaded("curios")) {
+                    ICurioStacksHandler stacksHandler = CuriosApi.getCuriosInventory(player)
+                            .map(handler -> handler.getCurios().get(record.subType()))
+                            .orElse(null);
+                    if (stacksHandler != null) {
+                        restoreToHandlerSlot(player, stacksHandler.getStacks(), record.originalSlot(), stack);
+                    } else {
+                        safeGiveOrDrop(player, stack);
+                    }
                 } else {
                     safeGiveOrDrop(player, stack);
                 }
