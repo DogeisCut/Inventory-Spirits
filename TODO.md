@@ -1,12 +1,18 @@
-- [ ] Curios Support
-- [ ] Cosmetic Armor Reworked Support
-- [ ] Aeronautics support
-- [ ] Punch to destroy and drop items
-- [ ] Right click to collect into inventory
+# Initial Release
+- [X] Curios Support
+- [X] Cosmetic Armor Reworked Support
+- [ ] Aeronautics support (just need the proper entity tag)
+- [X] Punch to destroy and drop items
+- [X] Right click to collect into inventory
 - [ ] cool ambient sounds
 - [ ] cool sounds
-- [ ] maybe rename these and this entire mod to "Death Spirits"
-- [ ] Config Options
+- [ ] solid block handling
+- [ ] void handling
+- [ ] Lava handling
+
+# Next Release
+
+- [ ] Config Options 
   - [ ] Create on void death (default: true)
   - [ ] Create for creative players (default: true)
   - [ ] Create for empty inventories (default: false)
@@ -20,6 +26,7 @@
   - [ ] Glow Effect on spirits (default: false)
   - [ ] Auto-destroy timer (default: Infinity)
   - [ ] Destroy behavior (drop, disappear) (default: drop)
+  - [ ] Destroy/punchable spirits (default: true)
   - [ ] Drop overflowing items (default: true) (false would make the spirit stick around, only giving what it can fit until you clear your inventory)
   - [ ] Retain inventory layout (default: true)
   - [ ] Drop existing inventory on collect (default: false)
