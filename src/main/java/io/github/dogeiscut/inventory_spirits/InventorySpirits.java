@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import io.github.dogeiscut.inventory_spirits.registry.ISConfig;
 import io.github.dogeiscut.inventory_spirits.registry.ISEntities;
 import io.github.dogeiscut.inventory_spirits.registry.ISParticles;
+import io.github.dogeiscut.inventory_spirits.registry.ISSoundEvents;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -19,6 +20,7 @@ public class InventorySpirits {
 
         ISEntities.register(modEventBus);
         ISParticles.register(modEventBus);
+        ISSoundEvents.register(modEventBus);
 
         modContainer.registerConfig(ModConfig.Type.COMMON, ISConfig.SPEC);
     }

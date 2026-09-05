@@ -4,7 +4,8 @@
 - [ ] Aeronautics support (just need the proper entity tags so they attach to sublevels)
 - [X] Punch to destroy and drop items (now takes a few hits instead of one, minecart/boat-style)
 - [X] Right click to collect into inventory
-- [ ] Make the spirits bouncy against blocks :3
+- [X] Make the spirits bouncy against blocks :3
+  - I dont think this works properly but im too lazy to fix it so
 - [ ] custom sounds (one for breaking, hitting, collecting, spawning, and ambient)
 - [ ] (more) custom particles (one for breaking, hitting, collecting, and spawning)
   - ok well technically there's already collecting particles but idk if i'm satisfied with them?
@@ -13,9 +14,13 @@
   - yeah i ended up just relying on mc to do it for me
 - [X] void handling
 - [X] Lava handling
-  - [ ] Take into account the lava level when pushing the spirits out of lava
-- [ ] Jade support
+  - [X] Take into account the lava level when pushing the spirits out of lava
+- [X] Jade support
+  - [ ] make it look cooler
+  - [ ] add owner
 - [X] make it not crash if you dont have curios (and make sure the same doesnt happen for Cosmetic Armor Reworked)
+- [ ] make them not spawn if you dont have litterally anything
+- [ ] Make the spirits regen health like minecarts and boats
 
 # Next Release
 
@@ -58,3 +63,23 @@
   - [ ] Mob inventory spirit drop behavior (default: never) (options: always, when holding player items, never)
   - Some of these are mutually exclusive and need to be merged accordingly
   - Also a lot of these are ideas and havent been updated with me developing the mod so they probably don't make sense
+
+
+
+
+
+
+
+
+
+
+
+Actually, no health display, jade doesnt do that for minecarts and boats so why should we here?
+
+
+
+As for the items, we can keep the item count, just to make the items *list* dissapear if there's nothing. For the actual items list, I'm picturing something akin to Create's item vault Jade display. (I don't know if it's Jade, Create, or Jade Addons that adds that honestly.)
+
+
+
+For xp, I'm thinking something custom, if possible, it'd be cool to display an actual xp bar (or maybe a mini one, may need custom textures with that) and the xp level you would get for it, in the font and color of the xp bar.

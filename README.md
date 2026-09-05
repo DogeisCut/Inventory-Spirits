@@ -17,5 +17,13 @@ Curios will properly be returned to the slot they were in before death, and will
 
 Cosmetic armor will properly be returned to the slot they were in before death, and will store inside spirits.
 
+- Sable
+
+Spirits will attach to sublevels if a player dies on one.
+
+- Jade
+
+Jade will display inventory spirit contents, health, and who's it was.
+
 ## Config Options
 - Ironically there's basically none yet. But these will be coming next release!

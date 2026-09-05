@@ -1,5 +1,7 @@
 package io.github.dogeiscut.inventory_spirits.event;
 
+import dev.ryanhcode.sable.Sable;
+import dev.ryanhcode.sable.sublevel.SubLevel;
 import io.github.dogeiscut.inventory_spirits.InventorySpirits;
 import io.github.dogeiscut.inventory_spirits.content.inventory_spirit.InventorySpiritEntity;
 import net.minecraft.world.entity.player.Player;
@@ -7,6 +9,7 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
@@ -29,6 +32,13 @@ public class PlayerDeathEventHandler {
 
         InventorySpiritEntity entity = InventorySpiritEntity.fromPlayer(player, true);
         entity.moveTo(player.getX(), player.getY() + 0.25d, player.getZ(), player.getYRot(), player.getXRot());
+
+        if (ModList.get().isLoaded("sable")) {
+            final SubLevel subLevel = Sable.HELPER.getLastTrackingSubLevel(player);
+            if (subLevel != null) {
+
+            }
+        }
 
         level.addFreshEntity(entity);
     }

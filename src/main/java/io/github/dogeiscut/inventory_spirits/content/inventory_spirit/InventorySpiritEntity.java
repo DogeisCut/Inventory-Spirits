@@ -2,17 +2,18 @@ package io.github.dogeiscut.inventory_spirits.content.inventory_spirit;
 
 import io.github.dogeiscut.inventory_spirits.registry.ISEntities;
 import io.github.dogeiscut.inventory_spirits.registry.ISParticles;
+import io.github.dogeiscut.inventory_spirits.registry.ISSoundEvents;
 import io.github.dogeiscut.inventory_spirits.util.ExperienceHelper;
 import io.github.dogeiscut.inventory_spirits.util.InventoryRestoreHelper;
 import lain.mods.cos.api.CosArmorAPI;
 import lain.mods.cos.api.inventory.CAStacksBase;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
@@ -27,6 +28,7 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModList;
 import top.theillusivec4.curios.api.CuriosApi;
@@ -194,6 +196,9 @@ public class InventorySpiritEntity extends Entity {
 
         if (this.health <= 0.0f) {
             this.drop();
+        } else if (this.level() instanceof ServerLevel serverLevel) {
+            serverLevel.playSound(null, this.getX(), this.getY(), this.getZ(),
+                    ISSoundEvents.SPIRIT_HIT.get(), SoundSource.NEUTRAL, 0.6f, 1.0f);
         }
 
         return true;
@@ -325,16 +330,14 @@ public class InventorySpiritEntity extends Entity {
         double dy = motion.y;
         double dz = motion.z;
 
-//        if (this.horizontalCollision) {
-//            double
-//        }
-
         int minY = serverLevel.getMinBuildHeight();
         int maxY = serverLevel.getMaxBuildHeight();
         double y = this.getY();
 
-        // TODO (Bug): take into account actual lava level.
-        boolean inLava = this.level().getFluidState(this.blockPosition()).is(FluidTags.LAVA);
+        BlockPos pos = this.blockPosition();
+        FluidState fluidState = this.level().getFluidState(pos);
+        boolean inLava = fluidState.is(FluidTags.LAVA);
+        double lavaSurfaceY = pos.getY() + fluidState.getHeight(this.level(), pos);
 
         double lowerBound = minY + VERTICAL_SAFETY_MARGIN;
         double upperBound = maxY - VERTICAL_SAFETY_MARGIN;
@@ -342,7 +345,8 @@ public class InventorySpiritEntity extends Entity {
         if (y < lowerBound) {
             dy += FLOAT_ACCELERATION * (1.0d + (lowerBound - y) * 0.05d);
         } else if (inLava) {
-            dy += FLOAT_ACCELERATION;
+            double depthBelowSurface = Math.max(lavaSurfaceY - y, 0.0d);
+            dy += FLOAT_ACCELERATION * (1.0d + depthBelowSurface * 0.05d);
         } else if (y > upperBound) {
             dy -= FLOAT_ACCELERATION * (1.0d + (y - upperBound) * 0.05d);
         } else {
@@ -358,6 +362,14 @@ public class InventorySpiritEntity extends Entity {
 
         this.setDeltaMovement(dx, dy, dz);
         this.move(MoverType.SELF, this.getDeltaMovement());
+
+        Vec3 postMove = this.getDeltaMovement();
+        if (this.horizontalCollision || this.verticalCollision) {
+            double bx = this.horizontalCollision ? -postMove.x * ELASTICITY : postMove.x;
+            double by = this.verticalCollision ? -postMove.y * ELASTICITY : postMove.y;
+            double bz = this.horizontalCollision ? -postMove.z * ELASTICITY : postMove.z;
+            this.setDeltaMovement(bx, by, bz);
+        }
     }
 
     @Override
@@ -368,7 +380,7 @@ public class InventorySpiritEntity extends Entity {
     private void playSpawnEffects() {
         if (!(this.level() instanceof ServerLevel serverLevel)) return;
         serverLevel.playSound(null, this.getX(), this.getY(), this.getZ(),
-                SoundEvents.AMETHYST_BLOCK_BREAK, SoundSource.NEUTRAL, 0.25f, 1.6f);
+                ISSoundEvents.SPIRIT_SPAWN.get(), SoundSource.NEUTRAL, 0.25f, 1.6f);
         serverLevel.sendParticles(ParticleTypes.POOF,
                 this.getX(), this.getY() + this.getBbHeight() * 0.5d, this.getZ(),
                 12, 0.25d, 0.25d, 0.25d, 0.01d);
@@ -378,14 +390,14 @@ public class InventorySpiritEntity extends Entity {
         if (!(this.level() instanceof ServerLevel serverLevel)) return;
         if (this.tickCount % 100 == 0 && this.random.nextFloat() < 0.35f) {
             serverLevel.playSound(null, this.getX(), this.getY(), this.getZ(),
-                    SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.NEUTRAL, 0.35f, 1.0f);
+                    ISSoundEvents.SPIRIT_AMBIENT.get(), SoundSource.NEUTRAL, 0.35f, 1.0f);
         }
     }
 
     private void playCollectEffects() {
         if (!(this.level() instanceof ServerLevel serverLevel)) return;
         serverLevel.playSound(null, this.getX(), this.getY(), this.getZ(),
-                SoundEvents.BEEHIVE_ENTER, SoundSource.PLAYERS, 0.8f, 2.1f);
+                ISSoundEvents.SPIRIT_COLLECT.get(), SoundSource.PLAYERS, 0.8f, 2.1f);
         serverLevel.sendParticles(ISParticles.INVENTORY_SPIRIT_DUST.get(),
                 this.getX(), this.getY() + this.getBbHeight() * 0.5d, this.getZ(),
                 16, 0.3d, 0.3d, 0.3d, 0.05d);
@@ -394,7 +406,7 @@ public class InventorySpiritEntity extends Entity {
     private void playDestroyEffects() {
         if (!(this.level() instanceof ServerLevel serverLevel)) return;
         serverLevel.playSound(null, this.getX(), this.getY(), this.getZ(),
-                SoundEvents.GLASS_BREAK, SoundSource.NEUTRAL, 0.7f, 0.9f);
+                ISSoundEvents.SPIRIT_BREAK.get(), SoundSource.NEUTRAL, 0.7f, 0.9f);
         serverLevel.sendParticles(ParticleTypes.POOF,
                 this.getX(), this.getY() + this.getBbHeight() * 0.5d, this.getZ(),
                 14, 0.3d, 0.3d, 0.3d, 0.03d);

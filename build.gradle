@@ -12,6 +12,7 @@ repositories {
     mavenLocal()
     maven { url = "https://maven.theillusivec4.top/" }
     maven { url = "https://cursemaven.com" }
+    maven { url = "https://api.modrinth.com/maven" }
 }
 
 base {
@@ -122,6 +123,11 @@ dependencies {
     runtimeOnly "top.theillusivec4.curios:curios-neoforge:9.5.1+1.21.1"
 
     implementation "curse.maven:cosmetic-armor-reworked-237307:5610814"
+
+    implementation "maven.modrinth:nvQzSEkH:eYz2YBGT"
+    implementation "maven.modrinth:T9PomCSv:U678xqle"
+    implementation "curse.maven:create-328085:7963363"
+    implementation "curse.maven:create-aeronautics-676721:8763471"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

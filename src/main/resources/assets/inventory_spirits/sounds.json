@@ -1,0 +1,37 @@
+{
+  "spirit_spawn": {
+    "category": "neutral",
+    "subtitle": "subtitle.inventory_spirits.spirit_spawn",
+    "sounds": [
+      "inventory_spirits:spirit_spawn"
+    ]
+  },
+  "spirit_hit": {
+    "category": "neutral",
+    "subtitle": "subtitle.inventory_spirits.spirit_hit",
+    "sounds": [
+      "inventory_spirits:spirit_hit"
+    ]
+  },
+  "spirit_break": {
+    "category": "neutral",
+    "subtitle": "subtitle.inventory_spirits.spirit_break",
+    "sounds": [
+      "inventory_spirits:spirit_break"
+    ]
+  },
+  "spirit_collect": {
+    "category": "players",
+    "subtitle": "subtitle.inventory_spirits.spirit_collect",
+    "sounds": [
+      "inventory_spirits:spirit_collect"
+    ]
+  },
+  "spirit_ambient": {
+    "category": "neutral",
+    "subtitle": "subtitle.inventory_spirits.spirit_ambient",
+    "sounds": [
+      "inventory_spirits:spirit_ambient"
+    ]
+  }
+}

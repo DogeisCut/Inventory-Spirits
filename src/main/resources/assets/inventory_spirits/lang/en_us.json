@@ -1,3 +1,12 @@
 {
-  "entity.inventory_spirits.inventory_spirit": "Inventory Spirit"
+  "entity.inventory_spirits.inventory_spirit": "Inventory Spirit",
+  "subtitle.inventory_spirits.spirit_spawn": "Inventory Spirit materializes",
+  "subtitle.inventory_spirits.spirit_hit": "Inventory Spirit hit",
+  "subtitle.inventory_spirits.spirit_break": "Inventory Spirit breaks",
+  "subtitle.inventory_spirits.spirit_collect": "Inventory Spirit collected",
+  "subtitle.inventory_spirits.spirit_ambient": "Inventory Spirit hums",
+  "config.jade.plugin_inventory_spirits.spirit_contents": "Inventory Spirit Contents",
+  "jade.inventory_spirits.item_count": "Items: %d",
+  "jade.inventory_spirits.experience": "Experience: %d",
+  "jade.inventory_spirits.owner": "Owner: %d"
 }
