@@ -86,7 +86,7 @@ public class InventorySpiritEntity extends Entity {
         for (int i = 0; i < player.getInventory().items.size(); i++) {
             ItemStack stack = player.getInventory().items.get(i);
             if (!stack.isEmpty()) {
-                entity.storeItem(stack, "inventory", i, "items");
+                entity.storeItem(stack, StoredItemRecord.Category.INVENTORY, i, "items");
                 if (clearPlayer) player.getInventory().items.set(i, ItemStack.EMPTY);
             }
         }
@@ -94,7 +94,7 @@ public class InventorySpiritEntity extends Entity {
         for (int i = 0; i < player.getInventory().armor.size(); i++) {
             ItemStack stack = player.getInventory().armor.get(i);
             if (!stack.isEmpty()) {
-                entity.storeItem(stack, "inventory", i, "armor");
+                entity.storeItem(stack, StoredItemRecord.Category.INVENTORY, i, "armor");
                 if (clearPlayer) player.getInventory().armor.set(i, ItemStack.EMPTY);
             }
         }
@@ -102,7 +102,7 @@ public class InventorySpiritEntity extends Entity {
         for (int i = 0; i < player.getInventory().offhand.size(); i++) {
             ItemStack stack = player.getInventory().offhand.get(i);
             if (!stack.isEmpty()) {
-                entity.storeItem(stack, "inventory", i, "offhand");
+                entity.storeItem(stack, StoredItemRecord.Category.INVENTORY, i, "offhand");
                 if (clearPlayer) player.getInventory().offhand.set(i, ItemStack.EMPTY);
             }
         }
@@ -114,7 +114,7 @@ public class InventorySpiritEntity extends Entity {
                     for (int i = 0; i < stacks.getSlots(); i++) {
                         ItemStack stack = stacks.getStackInSlot(i);
                         if (!stack.isEmpty()) {
-                            entity.storeItem(stack, "curios", i, identifier);
+                            entity.storeItem(stack, StoredItemRecord.Category.CURIOS, i, identifier);
                             if (clearPlayer) stacks.setStackInSlot(i, ItemStack.EMPTY);
                         }
                     }
@@ -127,7 +127,7 @@ public class InventorySpiritEntity extends Entity {
             for (int i = 0; i < cosArmor.getSlots(); i++) {
                 ItemStack stack = cosArmor.getStackInSlot(i);
                 if (!stack.isEmpty()) {
-                    entity.storeItem(stack, "cosmetic_armor", i, "armor");
+                    entity.storeItem(stack, StoredItemRecord.Category.COSMETIC_ARMOR, i, "armor");
                     if (clearPlayer) cosArmor.setStackInSlot(i, ItemStack.EMPTY);
                 }
             }
@@ -186,7 +186,7 @@ public class InventorySpiritEntity extends Entity {
         ItemStack stack = record.stack();
 
         switch (record.category()) {
-            case "inventory" -> {
+            case INVENTORY -> {
                 NonNullList<ItemStack> inv = switch (record.subType()) {
                     case "armor" -> player.getInventory().armor;
                     case "offhand" -> player.getInventory().offhand;
@@ -194,7 +194,7 @@ public class InventorySpiritEntity extends Entity {
                 };
                 restoreToVanillaSlot(player, inv, record.originalSlot(), stack);
             }
-            case "curios" -> {
+            case CURIOS -> {
                 if (ModList.get().isLoaded("curios")) {
                     ICurioStacksHandler stacksHandler = CuriosApi.getCuriosInventory(player)
                             .map(handler -> handler.getCurios().get(record.subType()))
@@ -208,7 +208,7 @@ public class InventorySpiritEntity extends Entity {
                     safeGiveOrDrop(player, stack);
                 }
             }
-            case "cosmetic_armor" -> {
+            case COSMETIC_ARMOR -> {
                 if (ModList.get().isLoaded("cosmeticarmorreworked")) {
                     restoreToHandlerSlot(player, CosArmorAPI.getCAStacks(player.getUUID()), record.originalSlot(), stack);
                 } else {
@@ -276,7 +276,7 @@ public class InventorySpiritEntity extends Entity {
         }
     }
 
-    public void storeItem(ItemStack stack, String category, int originalSlot, String subType) {
+    public void storeItem(ItemStack stack, StoredItemRecord.Category category, int originalSlot, String subType) {
         if (!stack.isEmpty()) {
             this.storedItems.add(new StoredItemRecord(stack.copy(), category, originalSlot, subType));
         }
