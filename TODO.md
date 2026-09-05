@@ -15,7 +15,7 @@
 - [X] Lava handling
   - [ ] Take into account the lava level when pushing the spirits out of lava
 - [ ] Jade support
-- [ ] make it not crash if you dont have curios (and make sure the same doesnt happen for Cosmetic Armor Reworked)
+- [X] make it not crash if you dont have curios (and make sure the same doesnt happen for Cosmetic Armor Reworked)
 
 # Next Release
 

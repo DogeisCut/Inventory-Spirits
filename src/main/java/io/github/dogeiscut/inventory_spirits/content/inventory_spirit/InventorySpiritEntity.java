@@ -1,12 +1,12 @@
 package io.github.dogeiscut.inventory_spirits.content.inventory_spirit;
 
-import io.github.dogeiscut.inventory_spirits.registry.ISConfig;
 import io.github.dogeiscut.inventory_spirits.registry.ISEntities;
 import io.github.dogeiscut.inventory_spirits.registry.ISParticles;
+import io.github.dogeiscut.inventory_spirits.util.ExperienceHelper;
+import io.github.dogeiscut.inventory_spirits.util.InventoryRestoreHelper;
 import lain.mods.cos.api.CosArmorAPI;
 import lain.mods.cos.api.inventory.CAStacksBase;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.NonNullList;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -29,9 +29,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModList;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import top.theillusivec4.curios.api.CuriosApi;
-import top.theillusivec4.curios.api.type.inventory.ICurioStacksHandler;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,7 +73,7 @@ public class InventorySpiritEntity extends Entity {
 
         entity.setOwner(player.getUUID());
 
-        int bankedExperience = getPlayerExperiencePoints(player);
+        int bankedExperience = ExperienceHelper.getPlayerExperiencePoints(player);
         entity.setTotalExperience(bankedExperience);
         if (clearPlayer) {
             player.totalExperience = 0;
@@ -136,23 +134,6 @@ public class InventorySpiritEntity extends Entity {
         return entity;
     }
 
-    // I may or may not have borrowed this from somewhere
-    public static int getExperienceForLevel(int level) {
-        if (level == 0)
-            return 0;
-        if (level >= 31)
-            return (9 * level * level - 325 * level) / 2 + 2220;
-        if (level >= 16)
-            return (5 * level * level - 81 * level) / 2 + 360;
-        return level * level + 6 * level;
-    }
-
-    private static int getPlayerExperiencePoints(Player player) {
-        int pointsForCurrentLevel = getExperienceForLevel(player.experienceLevel);
-        int pointsIntoCurrentLevel = Math.round(player.experienceProgress * player.getXpNeededForNextLevel());
-        return pointsForCurrentLevel + pointsIntoCurrentLevel;
-    }
-
     public void drop() {
         for (StoredItemRecord storedItem : storedItems) {
             this.spawnAtLocation(storedItem.stack().copy(), 0.4f);
@@ -169,7 +150,7 @@ public class InventorySpiritEntity extends Entity {
         if (this.level().isClientSide()) return;
 
         for (StoredItemRecord record : storedItems) {
-            restoreItem(player, record);
+            InventoryRestoreHelper.restoreItem(player, record);
         }
         storedItems.clear();
 
@@ -180,100 +161,6 @@ public class InventorySpiritEntity extends Entity {
 
         playCollectEffects();
         this.discard();
-    }
-
-    private void restoreItem(Player player, StoredItemRecord record) {
-        ItemStack stack = record.stack();
-
-        switch (record.category()) {
-            case INVENTORY -> {
-                NonNullList<ItemStack> inv = switch (record.subType()) {
-                    case "armor" -> player.getInventory().armor;
-                    case "offhand" -> player.getInventory().offhand;
-                    default -> player.getInventory().items;
-                };
-                restoreToVanillaSlot(player, inv, record.originalSlot(), stack);
-            }
-            case CURIOS -> {
-                if (ModList.get().isLoaded("curios")) {
-                    ICurioStacksHandler stacksHandler = CuriosApi.getCuriosInventory(player)
-                            .map(handler -> handler.getCurios().get(record.subType()))
-                            .orElse(null);
-                    if (stacksHandler != null) {
-                        restoreToHandlerSlot(player, stacksHandler.getStacks(), record.originalSlot(), stack);
-                    } else {
-                        safeGiveOrDrop(player, stack);
-                    }
-                } else {
-                    safeGiveOrDrop(player, stack);
-                }
-            }
-            case COSMETIC_ARMOR -> {
-                if (ModList.get().isLoaded("cosmeticarmorreworked")) {
-                    restoreToHandlerSlot(player, CosArmorAPI.getCAStacks(player.getUUID()), record.originalSlot(), stack);
-                } else {
-                    safeGiveOrDrop(player, stack);
-                }
-            }
-            default -> safeGiveOrDrop(player, stack);
-        }
-    }
-
-    private void restoreToVanillaSlot(Player player, NonNullList<ItemStack> inv, int slot, ItemStack stack) {
-        if (slot < 0 || slot >= inv.size()) {
-            safeGiveOrDrop(player, stack);
-            return;
-        }
-
-        ItemStack current = inv.get(slot);
-        if (current.isEmpty()) {
-            inv.set(slot, stack.copy());
-            return;
-        }
-
-        if (ISConfig.kickItemsFromOriginalSlot) {
-            ItemStack itemToKick = current.copy();
-            inv.set(slot, stack.copy());
-            safeGiveOrDrop(player, itemToKick);
-        } else {
-            safeGiveOrDrop(player, stack);
-        }
-    }
-
-    private void restoreToHandlerSlot(Player player, IItemHandlerModifiable handler, int slot, ItemStack stack) {
-        if (slot < 0 || slot >= handler.getSlots()) {
-            safeGiveOrDrop(player, stack);
-            return;
-        }
-
-        ItemStack current = handler.getStackInSlot(slot);
-        if (current.isEmpty()) {
-            handler.setStackInSlot(slot, stack.copy());
-            return;
-        }
-
-        if (ISConfig.kickItemsFromOriginalSlot) {
-            ItemStack itemToKick = current.copy();
-            handler.setStackInSlot(slot, stack.copy());
-            safeGiveOrDrop(player, itemToKick);
-        } else {
-            safeGiveOrDrop(player, stack);
-        }
-    }
-
-    private void safeGiveOrDrop(Player player, ItemStack stack) {
-        ItemStack remainder = stack.copy();
-
-        // This has the funny side effect of just erasing items in creative.
-        // But, I mean, that's how it works with picking up items normally in creative mode so...
-
-        // Just figured that was worth noting because it initially confused me before I realised
-        // it was intentional behavior.
-        boolean addedAll = player.getInventory().add(remainder);
-
-        if (!addedAll && !remainder.isEmpty()) {
-            player.drop(remainder, false);
-        }
     }
 
     public void storeItem(ItemStack stack, StoredItemRecord.Category category, int originalSlot, String subType) {
