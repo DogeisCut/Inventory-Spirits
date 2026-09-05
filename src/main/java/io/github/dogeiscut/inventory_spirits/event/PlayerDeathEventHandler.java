@@ -9,6 +9,7 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
 
 @EventBusSubscriber(modid = InventorySpirits.ID, bus = EventBusSubscriber.Bus.GAME)
 public class PlayerDeathEventHandler {
@@ -30,5 +31,18 @@ public class PlayerDeathEventHandler {
         entity.moveTo(player.getX(), player.getY() + 0.25d, player.getZ(), player.getYRot(), player.getXRot());
 
         level.addFreshEntity(entity);
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onExperienceDrop(LivingExperienceDropEvent event) {
+        if (!(event.getEntity() instanceof Player player) || player.level().isClientSide()) {
+            return;
+        }
+
+        if (player.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
+            return;
+        }
+
+        event.setCanceled(true);
     }
 }

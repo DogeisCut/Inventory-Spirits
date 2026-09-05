@@ -22,6 +22,8 @@ public class ISEntities {
             MobCategory.MISC
         )
         .sized(0.8f, 0.8f)
+        // TODO (Next Release): Config option
+        .fireImmune()
         .build("inventory_spirit")
     );
 

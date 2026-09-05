@@ -1,23 +1,33 @@
 package io.github.dogeiscut.inventory_spirits.content.inventory_spirit;
 
+import io.github.dogeiscut.inventory_spirits.registry.ISConfig;
 import io.github.dogeiscut.inventory_spirits.registry.ISEntities;
 import io.github.dogeiscut.inventory_spirits.registry.ISParticles;
 import lain.mods.cos.api.CosArmorAPI;
 import lain.mods.cos.api.inventory.CAStacksBase;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import top.theillusivec4.curios.api.CuriosApi;
@@ -29,28 +39,29 @@ import java.util.UUID;
 
 public class InventorySpiritEntity extends Entity {
 
-    // TODO: Ambient sounds
-    // TODO: Collect particles
-    // TODO: Spawn particles
-    // TODO: (Quiet) Spawn sound
-    // TODO: Collect sound
-    // TODO: Destroy particles
-    // TODO: Destroy sound
-    // TODO: Float upwards if below the build limit, until 1 block below. (speeding up the lower it is)
-    // TODO: Float upwards in lava.
-    // TODO: avoid solid blocks (but not like... actually solid, just gets pushed out of/away from them)
-    // TODO: Float downwards if above the build limit (or nether roof) (speeding up the higher it is)
-    // TODO: Friction
-    // TODO: Minecart/Boat-like behavior where punching doesn't instantly break it, but it shakes and needs to take actual damage.
+    // TODO (Next Release): Config option
+    private static final float MAX_HEALTH = 3.0f;
+    // TODO (Next Release): Config option
+    private static final double FLOAT_ACCELERATION = 0.005d;
+    // TODO (Next Release): Config option
+    private static final double MAX_FLOAT_SPEED = 3.0d;
+    // TODO (Next Release): Config option
+    private static final double FRICTION = 0.70d;
+    // TODO (Next Release): Config option
+    private static final int VERTICAL_SAFETY_MARGIN = 1;
+    // TODO (Next Release): Config option
+    private static final double ELASTICITY = 0.7d;
 
     private final List<StoredItemRecord> storedItems = new ArrayList<>();
     private int totalExperience;
     private UUID owner;
 
-    // TODO: wire this to a config option once ISConfig is implemented.
-    // false = fall back to a normal inventory placement when the original slot is occupied.
-    // true = always force the item back into its original slot, kicking whatever's currently there onto the ground/inventory.
-    private static final boolean KICK_ITEMS_FROM_ORIGINAL_SLOT = false;
+    private float health = MAX_HEALTH;
+    private boolean spawnEffectsPlayed = false;
+
+    private int lerpSteps = 0;
+    private double lerpX, lerpY, lerpZ;
+    private float lerpYRot, lerpXRot;
 
     public InventorySpiritEntity(EntityType<?> entityType, Level level) {
         super(entityType, level);
@@ -63,10 +74,13 @@ public class InventorySpiritEntity extends Entity {
 
         entity.setOwner(player.getUUID());
 
-        // TODO: config option for experience returns, vanilla Minecraft caps out at 7 levels and 9 points, and only returns a fraction.
-        entity.setTotalExperience(player.totalExperience);
-        // TODO [BUG]: Clearing the XP here does not prevent it from spawning in the `PlayerDeathEventHandler` event, unlike items.
-        if (clearPlayer) player.totalExperience = 0;
+        int bankedExperience = getPlayerExperiencePoints(player);
+        entity.setTotalExperience(bankedExperience);
+        if (clearPlayer) {
+            player.totalExperience = 0;
+            player.experienceLevel = 0;
+            player.experienceProgress = 0.0f;
+        }
 
         for (int i = 0; i < player.getInventory().items.size(); i++) {
             ItemStack stack = player.getInventory().items.get(i);
@@ -119,15 +133,32 @@ public class InventorySpiritEntity extends Entity {
         return entity;
     }
 
+    // I may or may not have borrowed this from somewhere
+    public static int getExperienceForLevel(int level) {
+        if (level == 0)
+            return 0;
+        if (level >= 31)
+            return (9 * level * level - 325 * level) / 2 + 2220;
+        if (level >= 16)
+            return (5 * level * level - 81 * level) / 2 + 360;
+        return level * level + 6 * level;
+    }
+
+    private static int getPlayerExperiencePoints(Player player) {
+        int pointsForCurrentLevel = getExperienceForLevel(player.experienceLevel);
+        int pointsIntoCurrentLevel = Math.round(player.experienceProgress * player.getXpNeededForNextLevel());
+        return pointsForCurrentLevel + pointsIntoCurrentLevel;
+    }
+
     public void drop() {
         for (StoredItemRecord storedItem : storedItems) {
             this.spawnAtLocation(storedItem.stack().copy(), 0.4f);
         }
         if (this.totalExperience > 0 && this.level() instanceof ServerLevel serverLevel) {
-            // TODO [BUG]: This seems to be duplicating experience points. You gain more than what was stored in the spirit.
             ExperienceOrb.award(serverLevel, this.position(), this.totalExperience);
             this.totalExperience = 0;
         }
+        playDestroyEffects();
         this.remove(RemovalReason.KILLED);
     }
 
@@ -139,12 +170,12 @@ public class InventorySpiritEntity extends Entity {
         }
         storedItems.clear();
 
-        // TODO [BUG]: This seems to be duplicating experience points. You gain more than what was stored in the spirit. This is by the same amount as the previous XP bug.
         if (this.totalExperience > 0) {
             player.giveExperiencePoints(this.totalExperience);
             this.totalExperience = 0;
         }
 
+        playCollectEffects();
         this.discard();
     }
 
@@ -193,7 +224,7 @@ public class InventorySpiritEntity extends Entity {
             return;
         }
 
-        if (KICK_ITEMS_FROM_ORIGINAL_SLOT) {
+        if (ISConfig.kickItemsFromOriginalSlot) {
             ItemStack itemToKick = current.copy();
             inv.set(slot, stack.copy());
             safeGiveOrDrop(player, itemToKick);
@@ -214,7 +245,7 @@ public class InventorySpiritEntity extends Entity {
             return;
         }
 
-        if (KICK_ITEMS_FROM_ORIGINAL_SLOT) {
+        if (ISConfig.kickItemsFromOriginalSlot) {
             ItemStack itemToKick = current.copy();
             handler.setStackInSlot(slot, stack.copy());
             safeGiveOrDrop(player, itemToKick);
@@ -254,9 +285,40 @@ public class InventorySpiritEntity extends Entity {
     }
 
     @Override
-    public boolean skipAttackInteraction(Entity entity) {
-        this.drop();
-        return false;
+    public boolean isPickable() {
+        return true;
+    }
+
+    @Override
+    public boolean hurt(DamageSource source, float amount) {
+        if (this.level().isClientSide() || this.isRemoved() || this.isInvulnerableTo(source)) {
+            return false;
+        }
+
+        this.markHurt();
+        this.health -= amount;
+
+        if (this.health <= 0.0f) {
+            this.drop();
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean isInvulnerableTo(DamageSource damageSource) {
+        // TODO (Next Release): Config option
+        return !damageSource.is(DamageTypes.PLAYER_ATTACK);
+    }
+
+    @Override
+    public void lerpTo(double x, double y, double z, float yRot, float xRot, int steps) {
+        this.lerpX = x;
+        this.lerpY = y;
+        this.lerpZ = z;
+        this.lerpYRot = yRot;
+        this.lerpXRot = xRot;
+        this.lerpSteps = steps;
     }
 
     public List<StoredItemRecord> getStoredItems() {
@@ -297,6 +359,8 @@ public class InventorySpiritEntity extends Entity {
         }
         if (compoundTag.contains("Owner")) this.owner = compoundTag.getUUID("Owner");
         if (compoundTag.contains("TotalExperience")) this.totalExperience = compoundTag.getInt("TotalExperience");
+        if (compoundTag.contains("Health")) this.health = compoundTag.getFloat("Health");
+        if (compoundTag.contains("SpawnEffectsPlayed")) this.spawnEffectsPlayed = compoundTag.getBoolean("SpawnEffectsPlayed");
     }
 
     @Override
@@ -309,17 +373,28 @@ public class InventorySpiritEntity extends Entity {
         compoundTag.put("StoredItemsList", list);
         compoundTag.putUUID("Owner", this.owner);
         compoundTag.putInt("TotalExperience", this.totalExperience);
-    }
-
-    @Override
-    public boolean isPickable() {
-        return true;
+        compoundTag.putFloat("Health", this.health);
+        compoundTag.putBoolean("SpawnEffectsPlayed", this.spawnEffectsPlayed);
     }
 
     @Override
     public void tick() {
         super.tick();
+
+        this.setOldPosAndRot();
+
         if (this.level().isClientSide()) {
+            if (this.lerpSteps > 0) {
+                double nextX = Mth.lerp(1.0d / this.lerpSteps, this.getX(), this.lerpX);
+                double nextY = Mth.lerp(1.0d / this.lerpSteps, this.getY(), this.lerpY);
+                double nextZ = Mth.lerp(1.0d / this.lerpSteps, this.getZ(), this.lerpZ);
+                float nextYRot = (float) Mth.lerp(1.0d / this.lerpSteps, (double) this.getYRot(), (double) this.lerpYRot);
+                float nextXRot = (float) Mth.lerp(1.0d / this.lerpSteps, (double) this.getXRot(), (double) this.lerpXRot);
+                this.lerpSteps--;
+                this.setPos(nextX, nextY, nextZ);
+                this.setRot(nextYRot, nextXRot);
+            }
+
             if (this.tickCount % 5 == 0) {
                 double offsetX = (this.random.nextDouble() - 0.5d) * 0.25d;
                 double offsetY = 0.4d - (this.random.nextDouble() - 0.5d) * 0.25d;
@@ -336,6 +411,98 @@ public class InventorySpiritEntity extends Entity {
                         speedX, speedY, speedZ
                 );
             }
+            return;
         }
+
+        if (!this.spawnEffectsPlayed) {
+            this.spawnEffectsPlayed = true;
+            playSpawnEffects();
+        }
+
+        applyFloatPhysics();
+        playAmbientSounds();
+    }
+
+    private void applyFloatPhysics() {
+        if (!(this.level() instanceof ServerLevel serverLevel)) return;
+
+        Vec3 motion = this.getDeltaMovement();
+        double dx = motion.x;
+        double dy = motion.y;
+        double dz = motion.z;
+
+//        if (this.horizontalCollision) {
+//            double
+//        }
+
+        int minY = serverLevel.getMinBuildHeight();
+        int maxY = serverLevel.getMaxBuildHeight();
+        double y = this.getY();
+
+        // TODO (Bug): take into account actual lava level.
+        boolean inLava = this.level().getFluidState(this.blockPosition()).is(FluidTags.LAVA);
+
+        double lowerBound = minY + VERTICAL_SAFETY_MARGIN;
+        double upperBound = maxY - VERTICAL_SAFETY_MARGIN;
+
+        if (y < lowerBound) {
+            dy += FLOAT_ACCELERATION * (1.0d + (lowerBound - y) * 0.05d);
+        } else if (inLava) {
+            dy += FLOAT_ACCELERATION;
+        } else if (y > upperBound) {
+            dy -= FLOAT_ACCELERATION * (1.0d + (y - upperBound) * 0.05d);
+        } else {
+            dy *= FRICTION;
+        }
+
+        dx *= FRICTION;
+        dz *= FRICTION;
+
+        dx = Mth.clamp(dx, -MAX_FLOAT_SPEED, MAX_FLOAT_SPEED);
+        dy = Mth.clamp(dy, -MAX_FLOAT_SPEED, MAX_FLOAT_SPEED);
+        dz = Mth.clamp(dz, -MAX_FLOAT_SPEED, MAX_FLOAT_SPEED);
+
+        this.setDeltaMovement(dx, dy, dz);
+        this.move(MoverType.SELF, this.getDeltaMovement());
+    }
+
+    @Override
+    protected void onBelowWorld() {
+        // TODO (Next Release): Config option
+    }
+
+    private void playSpawnEffects() {
+        if (!(this.level() instanceof ServerLevel serverLevel)) return;
+        serverLevel.playSound(null, this.getX(), this.getY(), this.getZ(),
+                SoundEvents.AMETHYST_BLOCK_BREAK, SoundSource.NEUTRAL, 0.25f, 1.6f);
+        serverLevel.sendParticles(ParticleTypes.POOF,
+                this.getX(), this.getY() + this.getBbHeight() * 0.5d, this.getZ(),
+                12, 0.25d, 0.25d, 0.25d, 0.01d);
+    }
+
+    private void playAmbientSounds() {
+        if (!(this.level() instanceof ServerLevel serverLevel)) return;
+        if (this.tickCount % 100 == 0 && this.random.nextFloat() < 0.35f) {
+            serverLevel.playSound(null, this.getX(), this.getY(), this.getZ(),
+                    SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.NEUTRAL, 0.35f, 1.0f);
+        }
+    }
+
+    private void playCollectEffects() {
+        if (!(this.level() instanceof ServerLevel serverLevel)) return;
+        serverLevel.playSound(null, this.getX(), this.getY(), this.getZ(),
+                SoundEvents.BEEHIVE_ENTER, SoundSource.PLAYERS, 0.8f, 2.1f);
+        serverLevel.sendParticles(ISParticles.INVENTORY_SPIRIT_DUST.get(),
+                this.getX(), this.getY() + this.getBbHeight() * 0.5d, this.getZ(),
+                16, 0.3d, 0.3d, 0.3d, 0.05d);
+    }
+
+    private void playDestroyEffects() {
+        if (!(this.level() instanceof ServerLevel serverLevel)) return;
+        serverLevel.playSound(null, this.getX(), this.getY(), this.getZ(),
+                SoundEvents.GLASS_BREAK, SoundSource.NEUTRAL, 0.7f, 0.9f);
+        serverLevel.sendParticles(ParticleTypes.POOF,
+                this.getX(), this.getY() + this.getBbHeight() * 0.5d, this.getZ(),
+                14, 0.3d, 0.3d, 0.3d, 0.03d);
     }
 }

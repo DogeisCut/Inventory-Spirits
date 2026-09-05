@@ -2,13 +2,13 @@
 - [X] Curios Support
 - [X] Cosmetic Armor Reworked Support
 - [ ] Aeronautics support (just need the proper entity tag)
-- [X] Punch to destroy and drop items
+- [X] Punch to destroy and drop items (now takes a few hits instead of one, minecart/boat-style)
 - [X] Right click to collect into inventory
-- [ ] cool ambient sounds
-- [ ] cool sounds
-- [ ] solid block handling
-- [ ] void handling
-- [ ] Lava handling
+- [X] cool ambient sounds
+- [X] cool sounds
+- [X] solid block handling
+- [X] void handling
+- [X] Lava handling
 
 # Next Release
 
@@ -50,3 +50,4 @@
   - [ ] Allow spirits to pick up experience (default: false)
   - [ ] Mob inventory spirit drop behavior (default: never) (options: always, when holding player items, never)
   - Some of these are mutually exclusive and need to be merged accordingly
+  - Also a lot of these are ideas and havent been updated with me developing the mod so they probably don't make sense
