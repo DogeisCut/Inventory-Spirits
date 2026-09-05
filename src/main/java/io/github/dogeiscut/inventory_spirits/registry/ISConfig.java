@@ -9,6 +9,8 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 // The full config option list from TODO.md's "Next Release" section is planned for a later
 // update. For 1.0.0 this just covers the one behavior that was previously hardcoded in
 // InventorySpiritEntity.
+// I'm not even sure if this whole config file works upon further investigation.
+// TODO: more investigation why is it not letting me config in the mod menu
 @EventBusSubscriber(modid = InventorySpirits.ID, bus = EventBusSubscriber.Bus.MOD)
 public class ISConfig {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
