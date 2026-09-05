@@ -10,8 +10,11 @@ how many of these can exist in the world at once will come soon.
 
 ## Current Mod Compatibility
 - Curios
+
 Curios will properly be returned to the slot they were in before death, and will store inside spirits.
+
 - Cosmetic Armor Reworked 
+
 Cosmetic armor will properly be returned to the slot they were in before death, and will store inside spirits.
 
 ## Config Options
