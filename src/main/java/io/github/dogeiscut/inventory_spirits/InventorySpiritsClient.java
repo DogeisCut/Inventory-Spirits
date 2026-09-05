@@ -15,8 +15,7 @@ import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 
 @EventBusSubscriber(modid = InventorySpirits.ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class InventorySpiritsClient {
-    public static final ModelLayerLocation INVENTORY_SPIRIT_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(InventorySpirits.ID, "" +
-            ""), "main");
+    public static final ModelLayerLocation INVENTORY_SPIRIT_LAYER = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(InventorySpirits.ID, "inventory_spirit"), "main");
 
     @SubscribeEvent
     public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {

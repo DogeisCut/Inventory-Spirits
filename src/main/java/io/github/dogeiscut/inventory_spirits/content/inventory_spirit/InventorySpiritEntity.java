@@ -34,6 +34,7 @@ import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.type.inventory.ICurioStacksHandler;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -322,7 +323,7 @@ public class InventorySpiritEntity extends Entity {
     }
 
     public List<StoredItemRecord> getStoredItems() {
-        return this.storedItems;
+        return Collections.unmodifiableList(this.storedItems);
     }
 
     public UUID getOwner() {

@@ -11,7 +11,6 @@ import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
 
 public class InventorySpiritModel<T extends InventorySpiritEntity> extends EntityModel<T> {
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(InventorySpirits.ID, "inventory_spirit"), "main");
 	private final ModelPart rotator;
 	private final ModelPart outer_cube;
 	private final ModelPart inner_cube;
