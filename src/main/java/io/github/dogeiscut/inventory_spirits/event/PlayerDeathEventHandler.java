@@ -7,6 +7,7 @@ import io.github.dogeiscut.inventory_spirits.content.inventory_spirit.InventoryS
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
@@ -34,28 +35,37 @@ public class PlayerDeathEventHandler {
         if (entity == null) {
             return;
         }
-        entity.moveTo(player.getX(), player.getY() + 0.25d, player.getZ(), player.getYRot(), player.getXRot());
+
+        Vec3 deathPos = new Vec3(player.getX(), player.getY() + 0.25d, player.getZ());
 
         if (ModList.get().isLoaded("sable")) {
-//            final SubLevel subLevel = Sable.HELPER.getLastTrackingSubLevel(player);
-//            if (subLevel != null) {
-//
-//            }
+            SubLevel subLevel = Sable.HELPER.getTrackingSubLevel(player);
+            if (subLevel == null) {
+                subLevel = Sable.HELPER.getLastTrackingSubLevel(player);
+            }
+
+            if (subLevel != null) {
+                Vec3 plotLocalPos = subLevel.logicalPose().transformPositionInverse(deathPos);
+                entity.moveTo(plotLocalPos.x, plotLocalPos.y, plotLocalPos.z, player.getYRot(), player.getXRot());
+                level.addFreshEntity(entity);
+                return;
+            }
         }
 
+        entity.moveTo(deathPos.x, deathPos.y, deathPos.z, player.getYRot(), player.getXRot());
         level.addFreshEntity(entity);
     }
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public static void onExperienceDrop(LivingExperienceDropEvent event) {
-        if (!(event.getEntity() instanceof Player player) || player.level().isClientSide()) {
-            return;
-        }
-
-        if (player.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
-            return;
-        }
-
-        event.setCanceled(true);
-    }
+//    @SubscribeEvent(priority = EventPriority.HIGHEST)
+//    public static void onExperienceDrop(LivingExperienceDropEvent event) {
+//        if (!(event.getEntity() instanceof Player player) || player.level().isClientSide()) {
+//            return;
+//        }
+//
+//        if (player.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
+//            return;
+//        }
+//
+//        event.setCanceled(true);
+//    }
 }

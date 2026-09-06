@@ -1,12 +1,12 @@
 # Initial Release
 - [X] Curios Support
 - [X] Cosmetic Armor Reworked Support
-- [ ] Aeronautics support (just need the proper entity tags so they attach to sublevels)
+- [X] Aeronautics support (just need the proper entity tags so they attach to sublevels)
 - [X] Punch to destroy and drop items (now takes a few hits instead of one, minecart/boat-style)
 - [X] Right click to collect into inventory
 - [X] Make the spirits bouncy against blocks :3
   - I dont think this works properly but im too lazy to fix it so
-- [ ] custom sounds (one for breaking, hitting, collecting, spawning, and ambient)
+- [X] custom sounds (one for breaking, hitting, collecting, spawning, and ambient)
 - [ ] (more) custom particles (one for breaking, hitting, collecting, and spawning)
   - ok well technically there's already collecting particles but idk if i'm satisfied with them?
   - and the spawning particles are probably fine tbh...
@@ -16,10 +16,10 @@
 - [X] Lava handling
   - [X] Take into account the lava level when pushing the spirits out of lava
 - [X] Jade support
-  - [ ] make it look cooler
-  - [ ] add owner
+  - [X] make it look cooler
+  - [X] add owner
 - [X] make it not crash if you dont have curios (and make sure the same doesnt happen for Cosmetic Armor Reworked)
-- [ ] make them not spawn if you dont have litterally anything
+- [X] make them not spawn if you dont have litterally anything
 - [ ] Make the spirits regen health like minecarts and boats
 
 # Next Release

@@ -80,7 +80,6 @@ public class InventorySpiritEntity extends Entity {
         entity.setOwner(player.getUUID());
 
         int bankedExperience = ExperienceHelper.getPlayerExperiencePoints(player);
-
         entity.setTotalExperience(bankedExperience);
         if (clearPlayer) {
             player.totalExperience = 0;
@@ -136,6 +135,10 @@ public class InventorySpiritEntity extends Entity {
                     if (clearPlayer) cosArmor.setStackInSlot(i, ItemStack.EMPTY);
                 }
             }
+        }
+
+        if (entity.getTotalExperience() == 0 && entity.getStoredItems().isEmpty()) {
+            return null;
         }
 
         return entity;

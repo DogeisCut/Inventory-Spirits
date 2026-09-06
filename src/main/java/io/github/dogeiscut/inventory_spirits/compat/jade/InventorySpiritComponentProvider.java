@@ -8,13 +8,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.Nullable;
-import snownee.jade.addon.access.AccessibilityPlugin;
 import snownee.jade.api.EntityAccessor;
 import snownee.jade.api.IEntityComponentProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.JadeIds;
 import snownee.jade.api.config.IPluginConfig;
-import snownee.jade.api.config.IWailaConfig;
 import snownee.jade.api.theme.IThemeHelper;
 import snownee.jade.api.ui.IElement;
 import snownee.jade.api.ui.IElementHelper;
@@ -29,9 +27,11 @@ public class InventorySpiritComponentProvider implements IEntityComponentProvide
     public static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(InventorySpirits.ID, "spirit_contents");
 
     private static final ResourceLocation XP_BAR_BACKGROUND = ResourceLocation.fromNamespaceAndPath(InventorySpirits.ID, "experience_bar_mini_background");
-    private static final ResourceLocation XP_BAR_PROGRESS = ResourceLocation.fromNamespaceAndPath(InventorySpirits.ID,"experience_bar_mini_progress");
+    private static final ResourceLocation XP_BAR_PROGRESS = ResourceLocation.fromNamespaceAndPath(InventorySpirits.ID, "experience_bar_mini_progress");
     private static final int XP_BAR_WIDTH = 91;
     private static final int XP_BAR_HEIGHT = 5;
+
+    private static final int XP_TEXT_COLOR = 0x7EFC20;
 
     private static final int ITEM_ICONS_PER_ROW = 9;
     private static final float ITEM_ICON_SCALE = 0.7f;
@@ -62,7 +62,6 @@ public class InventorySpiritComponentProvider implements IEntityComponentProvide
         }
 
         tooltip.replace(JadeIds.CORE_OBJECT_NAME, IThemeHelper.get().title(Component.translatable("jade.inventory_spirits.inventory_spirit_named", name)));
-        //tooltip.add(Component.translatable("jade.owner", name));
     }
 
     private void appendExperience(ITooltip tooltip, int totalExperience) {
@@ -71,14 +70,19 @@ public class InventorySpiritComponentProvider implements IEntityComponentProvide
         int level = ExperienceHelper.getLevelForExperience(totalExperience);
         float progress = ExperienceHelper.getProgressForExperience(totalExperience);
 
+        int xpAtLevelStart = ExperienceHelper.getExperienceForLevel(level);
+        int xpForThisLevel = ExperienceHelper.getExperienceForLevel(level + 1) - xpAtLevelStart;
+        int pointsIntoLevel = totalExperience - xpAtLevelStart;
+
         IElementHelper elements = IElementHelper.get();
 
-        // Using `success` here is sort of a placeholder since I want a black outline and to use the actual XP text color, 0x7EFC20
-        tooltip.add(IThemeHelper.get().success(Component.translatable("jade.inventory_spirits.experience", level)));
+        Component levelText = Component.translatable("jade.inventory_spirits.experience", level);
+        OutlinedTextElement outlinedTextElement = new OutlinedTextElement(levelText, XP_TEXT_COLOR);
+        tooltip.add(outlinedTextElement);
+        outlinedTextElement.message(level + "levels");
 
         IElement bar = elements.progress(progress, XP_BAR_BACKGROUND, XP_BAR_PROGRESS, XP_BAR_WIDTH, XP_BAR_HEIGHT, true).translate(new Vec2(0, -1));
-        // Probably don't want to use progress here, would be ideal to use actual points separated from the level lol.
-        bar.message("levels and " + progress + " points");
+        bar.message(pointsIntoLevel + " out of " + xpForThisLevel + " points");
         tooltip.append(bar);
     }
 

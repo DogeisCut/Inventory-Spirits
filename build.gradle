@@ -11,8 +11,16 @@ group = mod_group_id
 repositories {
     mavenLocal()
     maven { url = "https://maven.theillusivec4.top/" }
+    maven { url = "https://maven.parchmentmc.org" }
+    maven { url = "https://maven.createmod.net" }
+    maven { url = "https://maven.ithundxr.dev/snapshots" }
+
     maven { url = "https://cursemaven.com" }
     maven { url = "https://api.modrinth.com/maven" }
+
+    maven { url = "https://maven.ryanhcode.dev/releases" }
+    maven { url = "https://maven.blamejared.com" }
+    maven { url = "https://maven.squiddev.cc" }
 }
 
 base {
@@ -125,9 +133,23 @@ dependencies {
     implementation "curse.maven:cosmetic-armor-reworked-237307:5610814"
 
     implementation "maven.modrinth:nvQzSEkH:eYz2YBGT"
-    implementation "maven.modrinth:T9PomCSv:U678xqle"
-    implementation "curse.maven:create-328085:7963363"
-    implementation "curse.maven:create-aeronautics-676721:8763471"
+
+    implementation("com.simibubi.create:create-1.21.1:6.0.10-280:slim") { transitive = false }
+    implementation("net.createmod.ponder:ponder-neoforge:1.0.85+mc1.21.1")
+    compileOnly("dev.engine-room.flywheel:flywheel-neoforge-api-1.21.1:1.0.6")
+    runtimeOnly("dev.engine-room.flywheel:flywheel-neoforge-1.21.1:1.0.6")
+    implementation("com.tterrag.registrate:Registrate:MC1.21-1.3.0+67")
+
+    implementation("dev.ryanhcode.sable:sable-neoforge-1.21.1:1.1.3")
+    implementation("dev.ryanhcode.sable-companion:sable-companion-common-1.21.1:1.5.0")
+    implementation("foundry.veil:veil-neoforge-1.21.1:3.6.2")
+
+    implementation("dev.eriksonn.aeronautics:aeronautics-neoforge-1.21.1:1.1.0") {
+        transitive = false
+    }
+    implementation("dev.simulated_team.simulated:simulated-neoforge-1.21.1:1.1.0") {
+        transitive = false
+    }
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
