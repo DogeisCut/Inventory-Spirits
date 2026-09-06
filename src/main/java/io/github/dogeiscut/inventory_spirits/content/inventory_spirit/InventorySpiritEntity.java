@@ -58,7 +58,7 @@ public class InventorySpiritEntity extends Entity {
     // TODO (Next Release): Config option
     private static final int VERTICAL_SAFETY_MARGIN = 1;
     // TODO (Next Release): Config option
-    private static final boolean ALLOW_STEALING = false;
+    private static final boolean ALLOW_STEALING = true;
     // TODO (Next Release): Config option
     private static final float INTERACTION_SIZE = 1.0f;
 
