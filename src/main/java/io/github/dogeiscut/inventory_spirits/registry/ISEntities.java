@@ -21,7 +21,8 @@ public class ISEntities {
             InventorySpiritEntity::new,
             MobCategory.MISC
         )
-        .sized(0.8f, 0.8f)
+        .sized(0.6f, 0.6f)
+        .eyeHeight(0.5f)
         // TODO (Next Release): Config option
         .fireImmune()
         .build("inventory_spirit")

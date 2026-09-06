@@ -22,9 +22,9 @@ public class InventorySpiritModel<T extends InventorySpiritEntity> extends Entit
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partdefinition = meshdefinition.getRoot();
 
-		PartDefinition rotator = partdefinition.addOrReplaceChild("rotator", CubeListBuilder.create().texOffs(-16, 12).addBox(-8.0F, 0.0F, -8.0F, 16.0F, 0.0F, 16.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 6.5F, 0.0F));
+		PartDefinition rotator = partdefinition.addOrReplaceChild("rotator", CubeListBuilder.create().texOffs(-16, 12).addBox(-8.0F, 0.0F, -8.0F, 16.0F, 0.0F, 16.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
-		PartDefinition outer_cube = partdefinition.addOrReplaceChild("outer_cube", CubeListBuilder.create().texOffs(0, 0).addBox(-3.0F, -3.0F, -3.0F, 6.0F, 6.0F, 6.0F, new CubeDeformation(-6.0F)), PartPose.offset(0.0F, 6.5F, 0.0F));
+		PartDefinition outer_cube = partdefinition.addOrReplaceChild("outer_cube", CubeListBuilder.create().texOffs(0, 0).addBox(-3.0F, -3.0F, -3.0F, 6.0F, 6.0F, 6.0F, new CubeDeformation(-6.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
 		PartDefinition inner_cube = outer_cube.addOrReplaceChild("inner_cube", CubeListBuilder.create().texOffs(24, 0).addBox(-1.5F, -1.5F, -1.5F, 3.0F, 3.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 

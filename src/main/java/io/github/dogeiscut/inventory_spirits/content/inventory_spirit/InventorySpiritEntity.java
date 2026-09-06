@@ -31,9 +31,12 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.entity.projectile.windcharge.WindCharge;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.Nullable;
@@ -56,6 +59,8 @@ public class InventorySpiritEntity extends Entity {
     private static final int VERTICAL_SAFETY_MARGIN = 1;
     // TODO (Next Release): Config option
     private static final boolean ALLOW_STEALING = false;
+    // TODO (Next Release): Config option
+    private static final float INTERACTION_SIZE = 1.0f;
 
     private static final EntityDataAccessor<Optional<UUID>> DATA_OWNER_UUID =
             SynchedEntityData.defineId(InventorySpiritEntity.class, EntityDataSerializers.OPTIONAL_UUID);
@@ -65,6 +70,13 @@ public class InventorySpiritEntity extends Entity {
 
     private float accumulatedDamage = 0.0f;
     private boolean spawnEffectsPlayed = false;
+
+    // These are for some future config!!
+    private long deathTime;
+    private double deathX, deathY, deathZ;
+    private float deathYRot, deathXRot;
+    private String deathReasonId = "";
+    private String deathReasonText = "";
 
     private int lerpSteps = 0;
     private double lerpX, lerpY, lerpZ;
@@ -76,10 +88,21 @@ public class InventorySpiritEntity extends Entity {
     }
 
     @Nullable
-    public static InventorySpiritEntity fromPlayer(Player player, boolean clearPlayer) {
+    public static InventorySpiritEntity fromPlayer(Player player, boolean clearPlayer, @Nullable DamageSource damageSource) {
         InventorySpiritEntity entity = new InventorySpiritEntity(ISEntities.INVENTORY_SPIRIT.get(), player.level());
 
         entity.setOwner(player.getUUID());
+
+        entity.deathTime = System.currentTimeMillis();
+        entity.deathX = player.getX();
+        entity.deathY = player.getY();
+        entity.deathZ = player.getZ();
+        entity.deathYRot = player.getYRot();
+        entity.deathXRot = player.getXRot();
+        if (damageSource != null) {
+            entity.deathReasonId = damageSource.getMsgId();
+            entity.deathReasonText = damageSource.getLocalizedDeathMessage(player).getString();
+        }
 
         int bankedExperience = ExperienceHelper.getPlayerExperiencePoints(player);
         entity.setTotalExperience(bankedExperience);
@@ -139,6 +162,7 @@ public class InventorySpiritEntity extends Entity {
             }
         }
 
+        // TODO (Next Release): Config option
         if (entity.getTotalExperience() == 0 && entity.getStoredItems().isEmpty()) {
             return null;
         }
@@ -148,7 +172,7 @@ public class InventorySpiritEntity extends Entity {
 
     public void drop() {
         for (StoredItemRecord storedItem : storedItems) {
-            this.spawnAtLocation(storedItem.stack().copy(), 0.4f);
+            this.spawnAtLocation(storedItem.stack().copy(), getBbHeight()/2.0f);
         }
         if (this.totalExperience > 0 && this.level() instanceof ServerLevel serverLevel) {
             ExperienceOrb.award(serverLevel, this.position(), this.totalExperience);
@@ -231,10 +255,8 @@ public class InventorySpiritEntity extends Entity {
         if (this.level().isClientSide() || this.isRemoved() || this.isInvulnerableTo(source)) {
             return false;
         }
+
         // TODO (Next Release): Additional config for handling stealing with breaking
-//        if (ALLOW_STEALING || source.getEntity().getUUID().equals(getOwner()) || getOwner() == null) {
-//
-//        }
 
         this.markHurt();
         this.accumulatedDamage += amount;
@@ -242,9 +264,7 @@ public class InventorySpiritEntity extends Entity {
         if (this.accumulatedDamage > MAX_DAMAGE) {
             this.drop();
         } else if (this.level() instanceof ServerLevel serverLevel) {
-            float randomPitch = 0.8F + random.nextFloat() * 0.4F;
-            serverLevel.playSound(null, this.getX(), this.getY(), this.getZ(),
-                    ISSoundEvents.SPIRIT_HIT.get(), SoundSource.NEUTRAL, 1.0f, randomPitch);
+            playHiteffects();
         }
 
         return true;
@@ -287,6 +307,30 @@ public class InventorySpiritEntity extends Entity {
         this.totalExperience = totalExperience;
     }
 
+    public long getDeathTime() {
+        return deathTime;
+    }
+
+    public Vec3 getDeathLocation() {
+        return new Vec3(deathX, deathY, deathZ);
+    }
+
+    public float getDeathYRot() {
+        return deathYRot;
+    }
+
+    public float getDeathXRot() {
+        return deathXRot;
+    }
+
+    public String getDeathReasonId() {
+        return deathReasonId;
+    }
+
+    public String getDeathReasonText() {
+        return deathReasonText;
+    }
+
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(DATA_OWNER_UUID, Optional.empty());
@@ -307,6 +351,14 @@ public class InventorySpiritEntity extends Entity {
         if (compoundTag.contains("TotalExperience")) this.totalExperience = compoundTag.getInt("TotalExperience");
         if (compoundTag.contains("AccumulatedDamage")) this.accumulatedDamage = compoundTag.getFloat("AccumulatedDamage");
         if (compoundTag.contains("SpawnEffectsPlayed")) this.spawnEffectsPlayed = compoundTag.getBoolean("SpawnEffectsPlayed");
+        if (compoundTag.contains("DeathTime")) this.deathTime = compoundTag.getLong("DeathTime");
+        if (compoundTag.contains("DeathX")) this.deathX = compoundTag.getDouble("DeathX");
+        if (compoundTag.contains("DeathY")) this.deathY = compoundTag.getDouble("DeathY");
+        if (compoundTag.contains("DeathZ")) this.deathZ = compoundTag.getDouble("DeathZ");
+        if (compoundTag.contains("DeathYRot")) this.deathYRot = compoundTag.getFloat("DeathYRot");
+        if (compoundTag.contains("DeathXRot")) this.deathXRot = compoundTag.getFloat("DeathXRot");
+        if (compoundTag.contains("DeathReasonId")) this.deathReasonId = compoundTag.getString("DeathReasonId");
+        if (compoundTag.contains("DeathReasonText")) this.deathReasonText = compoundTag.getString("DeathReasonText");
     }
 
     @Override
@@ -322,6 +374,14 @@ public class InventorySpiritEntity extends Entity {
         compoundTag.putInt("TotalExperience", this.totalExperience);
         compoundTag.putFloat("AccumulatedDamage", this.accumulatedDamage);
         compoundTag.putBoolean("SpawnEffectsPlayed", this.spawnEffectsPlayed);
+        compoundTag.putLong("DeathTime", this.deathTime);
+        compoundTag.putDouble("DeathX", this.deathX);
+        compoundTag.putDouble("DeathY", this.deathY);
+        compoundTag.putDouble("DeathZ", this.deathZ);
+        compoundTag.putFloat("DeathYRot", this.deathYRot);
+        compoundTag.putFloat("DeathXRot", this.deathXRot);
+        compoundTag.putString("DeathReasonId", this.deathReasonId);
+        compoundTag.putString("DeathReasonText", this.deathReasonText);
     }
 
     @Override
@@ -344,7 +404,7 @@ public class InventorySpiritEntity extends Entity {
 
             if (this.tickCount % 5 == 0) {
                 double offsetX = (this.random.nextDouble() - 0.5d) * 0.25d;
-                double offsetY = 0.4d - (this.random.nextDouble() - 0.5d) * 0.25d;
+                double offsetY = getBbHeight()/2.0f - (this.random.nextDouble() - 0.5d) * 0.25d;
                 double offsetZ = (this.random.nextDouble() - 0.5d) * 0.25d;
 
                 double speedX = (this.random.nextDouble() - 0.5d) * 0.05d;
@@ -377,34 +437,17 @@ public class InventorySpiritEntity extends Entity {
     private void applyFloatPhysics() {
         if (!(this.level() instanceof ServerLevel serverLevel)) return;
 
+        this.noPhysics = !this.level().noCollision(this, this.getBoundingBox().deflate(1.0E-7));
+        if (this.noPhysics) {
+            this.moveTowardsClosestSpace(this.getX(), (this.getBoundingBox().minY + this.getBoundingBox().maxY) / 2.0d, this.getZ());
+        }
+
         Vec3 motion = this.getDeltaMovement();
         double dx = motion.x;
         double dy = motion.y;
         double dz = motion.z;
 
-        // my horrid attempt at fixing this thing's lerping when interacting with sub-levels.
-        // it doesn't work.
-        if (ModList.get().isLoaded("sable")) {
-            SubLevel trackingSubLevel = Sable.HELPER.getTrackingSubLevel(this);
-            if (trackingSubLevel != null) {
-                EntityStickExtension stickExtension = (EntityStickExtension) this;
-                Vec3 plotPosition = stickExtension.sable$getPlotPosition();
-
-                if (plotPosition != null) {
-                    dx *= FRICTION;
-                    dy *= FRICTION;
-                    dz *= FRICTION;
-
-                    dx = Mth.clamp(dx, -MAX_FLOAT_SPEED, MAX_FLOAT_SPEED);
-                    dy = Mth.clamp(dy, -MAX_FLOAT_SPEED, MAX_FLOAT_SPEED);
-                    dz = Mth.clamp(dz, -MAX_FLOAT_SPEED, MAX_FLOAT_SPEED);
-
-                    this.setDeltaMovement(dx, dy, dz);
-                    stickExtension.sable$setPlotPosition(plotPosition.add(dx, dy, dz));
-                    return;
-                }
-            }
-        }
+        ProjectileUtil.rotateTowardsMovement(this, 0.2F);
 
         int minY = serverLevel.getMinBuildHeight();
         int maxY = serverLevel.getMaxBuildHeight();
@@ -445,6 +488,13 @@ public class InventorySpiritEntity extends Entity {
         // TODO (Next Release): Config option
     }
 
+    // TODO (Next Release): figure out how wind charges make ONLY their interaction/hit bounds bigger
+//    @Override
+//    protected AABB makeBoundingBox() {
+//        float f = INTERACTION_SIZE / 2.0F;
+//        return new AABB(this.position().x - (double)f, this.position().y, this.position().z - (double)f, this.position().x + (double)f, this.position().y + (double) INTERACTION_SIZE, this.position().z + (double)f);
+//    }
+
     private void playSpawnEffects() {
         if (!(this.level() instanceof ServerLevel serverLevel)) return;
         float randomPitch = 0.8F + random.nextFloat() * 0.4F;
@@ -468,7 +518,7 @@ public class InventorySpiritEntity extends Entity {
                 ISSoundEvents.SPIRIT_COLLECT.get(), SoundSource.PLAYERS, 1.0f, randomPitch);
         serverLevel.sendParticles(ISParticles.INVENTORY_SPIRIT_DUST.get(),
                 this.getX(), this.getY() + this.getBbHeight() * 0.5d, this.getZ(),
-                16, 0.3d, 0.3d, 0.3d, 0.05d);
+                32, 0.3d, 0.3d, 0.3d, 0.05d);
     }
 
     private void playDestroyEffects() {
@@ -479,5 +529,18 @@ public class InventorySpiritEntity extends Entity {
         serverLevel.sendParticles(ParticleTypes.POOF,
                 this.getX(), this.getY() + this.getBbHeight() * 0.5d, this.getZ(),
                 14, 0.3d, 0.3d, 0.3d, 0.03d);
+        serverLevel.sendParticles(ISParticles.INVENTORY_SPIRIT_DUST.get(),
+                this.getX(), this.getY() + this.getBbHeight() * 0.5d, this.getZ(),
+                14, 0.1d, 0.1d, 0.1d, 0.15d);
+    }
+
+    private void playHiteffects() {
+        if (!(this.level() instanceof ServerLevel serverLevel)) return;
+        float randomPitch = 0.8F + random.nextFloat() * 0.4F;
+        serverLevel.playSound(null, this.getX(), this.getY(), this.getZ(),
+                ISSoundEvents.SPIRIT_HIT.get(), SoundSource.NEUTRAL, 1.0f, randomPitch);
+        serverLevel.sendParticles(ISParticles.INVENTORY_SPIRIT_DUST.get(),
+                this.getX(), this.getY() + this.getBbHeight() * 0.5d, this.getZ(),
+                4, 0.1d, 0.1d, 0.1d, 0.15d);
     }
 }

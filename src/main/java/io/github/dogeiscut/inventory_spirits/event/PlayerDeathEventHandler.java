@@ -14,7 +14,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
 
 @EventBusSubscriber(modid = InventorySpirits.ID, bus = EventBusSubscriber.Bus.GAME)
 public class PlayerDeathEventHandler {
@@ -32,7 +31,7 @@ public class PlayerDeathEventHandler {
 
         Level level = player.level();
 
-        InventorySpiritEntity entity = InventorySpiritEntity.fromPlayer(player, true);
+        InventorySpiritEntity entity = InventorySpiritEntity.fromPlayer(player, true, event.getSource());
         if (entity == null) {
             return;
         }

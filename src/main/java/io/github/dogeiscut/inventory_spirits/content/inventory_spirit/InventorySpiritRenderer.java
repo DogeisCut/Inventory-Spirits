@@ -27,7 +27,13 @@ public class InventorySpiritRenderer extends EntityRenderer<InventorySpiritEntit
     public void render(InventorySpiritEntity entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         super.render(entity, entityYaw, partialTick, poseStack, buffer, packedLight);
 
+        if (entity.isInvisible()) return;
+
+        poseStack.pushPose();
+
         VertexConsumer vertexConsumer = buffer.getBuffer(IsRenderTypes.unshadedEmissive(TEXTURE));
+
+        poseStack.translate(0.0D, entity.getBbHeight() / 2.0F, 0.0D);
 
         this.model.setupAnim(entity, 0.0f, 0.0f, entity.tickCount + partialTick, 0.0f, 0.0f);
         this.model.renderToBuffer(
@@ -36,6 +42,8 @@ public class InventorySpiritRenderer extends EntityRenderer<InventorySpiritEntit
                 LightTexture.FULL_BRIGHT,
                 OverlayTexture.NO_OVERLAY
         );
+
+        poseStack.popPose();
     }
 
     @Override
