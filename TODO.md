@@ -5,9 +5,6 @@
 - [X] Punch to destroy and drop items (now takes a few hits instead of one, minecart/boat-style)
 - [X] Right click to collect into inventory
 - [X] custom sounds (one for breaking, hitting, collecting, spawning, and ambient)
-- [ ] (more) custom particles (one for breaking, hitting, collecting, and spawning)
-  - ok well technically there's already collecting particles but idk if i'm satisfied with them?
-  - and the spawning particles are probably fine tbh...
 - [X] solid block handling
   - yeah i ended up just relying on mc to do it for me
 - [X] void handling
@@ -19,14 +16,16 @@
 - [X] make it not crash if you dont have curios (and make sure the same doesnt happen for Cosmetic Armor Reworked)
 - [X] make them not spawn if you dont have litterally anything
 - [X] Make the spirits regen health like minecarts and boats
-- [ ] Store date of death, death location/rotation, and death reason on the entity for future config options 
-- [ ] maybe make spirits do what items do where they pop up if they are inside of a block
+- [X] Store date of death, death location/rotation, and death reason on the entity for future config options 
+- [X] maybe make spirits do what items do where they pop up if they are inside of a block
 - [X] fix spirits being erased by aeronautics if one is spawned at a sublevel but you are too far away from it when you died
   - might want to just rethink how im doing sable support at this point, it'd probably just be easier to fix the lerping bugs and
 forgoe the whole retaining in sublevels thing
+- [ ] Testing, (with friends!!)
 
 # Next Release
 - [ ] Cool spawn animation, like synced with player death or smth
+- [ ] (more) custom particles (one for breaking and maybe other stuff)
 - [ ] Config Options 
   - [ ] Create on void death (default: true)
   - [ ] Create for creative players (default: true)
