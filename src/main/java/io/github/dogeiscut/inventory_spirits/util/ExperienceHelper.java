@@ -40,4 +40,18 @@ public final class ExperienceHelper {
             return 0f;
         return (totalExperience - xpAtLevelStart) / (float) xpForThisLevel;
     }
+
+    // TODO (Next Release): Config option
+    public static final int VANILLA_DEATH_XP_PER_LEVEL = 7;
+    // TODO (Next Release): Config option
+    public static final int VANILLA_DEATH_XP_CAP = 100;
+
+    public static int getVanillaDeathExperience(int totalExperience) {
+        int level = getLevelForExperience(totalExperience);
+        return Math.min(level * VANILLA_DEATH_XP_PER_LEVEL, VANILLA_DEATH_XP_CAP);
+    }
+
+    public static int applyFlatExperienceReduction(int totalExperience, int flatReduction) {
+        return Math.max(0, totalExperience - flatReduction);
+    }
 }
