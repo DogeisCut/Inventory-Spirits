@@ -28,7 +28,7 @@
 forgoe the whole retaining in sublevels thing
 
 # Next Release
-
+- [ ] Cool spawn animation
 - [ ] Config Options 
   - [ ] Create on void death (default: true)
   - [ ] Create for creative players (default: true)
@@ -68,23 +68,3 @@ forgoe the whole retaining in sublevels thing
   - [ ] Mob inventory spirit drop behavior (default: never) (options: always, when holding player items, never)
   - Some of these are mutually exclusive and need to be merged accordingly
   - Also a lot of these are ideas and havent been updated with me developing the mod so they probably don't make sense
-
-
-
-
-
-
-
-
-
-
-
-Actually, no health display, jade doesnt do that for minecarts and boats so why should we here?
-
-
-
-As for the items, we can keep the item count, just to make the items *list* dissapear if there's nothing. For the actual items list, I'm picturing something akin to Create's item vault Jade display. (I don't know if it's Jade, Create, or Jade Addons that adds that honestly.)
-
-
-
-For xp, I'm thinking something custom, if possible, it'd be cool to display an actual xp bar (or maybe a mini one, may need custom textures with that) and the xp level you would get for it, in the font and color of the xp bar.
