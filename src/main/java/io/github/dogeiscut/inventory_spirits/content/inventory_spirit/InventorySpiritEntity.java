@@ -80,7 +80,7 @@ public class InventorySpiritEntity extends Entity {
         entity.setOwner(player.getUUID());
 
         int bankedExperience = ExperienceHelper.getPlayerExperiencePoints(player);
-        if (bankedExperience == 0 && )
+
         entity.setTotalExperience(bankedExperience);
         if (clearPlayer) {
             player.totalExperience = 0;
