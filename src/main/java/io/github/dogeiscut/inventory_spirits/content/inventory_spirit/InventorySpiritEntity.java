@@ -44,7 +44,8 @@ import java.util.*;
 public class InventorySpiritEntity extends Entity {
 
     // TODO (Next Release): Config option
-    private static final float MAX_HEALTH = 3.0f;
+    private static final float MAX_DAMAGE = 3.0f;
+    private static final float DAMAGE_DECAY_PER_TICK = MAX_DAMAGE / 40.0f;
     // TODO (Next Release): Config option
     private static final double FLOAT_ACCELERATION = 0.005d;
     // TODO (Next Release): Config option
@@ -54,8 +55,6 @@ public class InventorySpiritEntity extends Entity {
     // TODO (Next Release): Config option
     private static final int VERTICAL_SAFETY_MARGIN = 1;
     // TODO (Next Release): Config option
-    private static final double ELASTICITY = 0.7d;
-    // TODO (Next Release): Config option
     private static final boolean ALLOW_STEALING = false;
 
     private static final EntityDataAccessor<Optional<UUID>> DATA_OWNER_UUID =
@@ -64,7 +63,7 @@ public class InventorySpiritEntity extends Entity {
     private final List<StoredItemRecord> storedItems = new ArrayList<>();
     private int totalExperience;
 
-    private float health = MAX_HEALTH;
+    private float accumulatedDamage = 0.0f;
     private boolean spawnEffectsPlayed = false;
 
     private int lerpSteps = 0;
@@ -238,9 +237,9 @@ public class InventorySpiritEntity extends Entity {
 //        }
 
         this.markHurt();
-        this.health -= amount;
+        this.accumulatedDamage += amount;
 
-        if (this.health <= 0.0f) {
+        if (this.accumulatedDamage > MAX_DAMAGE) {
             this.drop();
         } else if (this.level() instanceof ServerLevel serverLevel) {
             float randomPitch = 0.8F + random.nextFloat() * 0.4F;
@@ -306,7 +305,7 @@ public class InventorySpiritEntity extends Entity {
         }
         if (compoundTag.hasUUID("Owner")) this.setOwner(compoundTag.getUUID("Owner"));
         if (compoundTag.contains("TotalExperience")) this.totalExperience = compoundTag.getInt("TotalExperience");
-        if (compoundTag.contains("Health")) this.health = compoundTag.getFloat("Health");
+        if (compoundTag.contains("AccumulatedDamage")) this.accumulatedDamage = compoundTag.getFloat("AccumulatedDamage");
         if (compoundTag.contains("SpawnEffectsPlayed")) this.spawnEffectsPlayed = compoundTag.getBoolean("SpawnEffectsPlayed");
     }
 
@@ -321,7 +320,7 @@ public class InventorySpiritEntity extends Entity {
         UUID owner = this.getOwner();
         if (owner != null) compoundTag.putUUID("Owner", owner);
         compoundTag.putInt("TotalExperience", this.totalExperience);
-        compoundTag.putFloat("Health", this.health);
+        compoundTag.putFloat("AccumulatedDamage", this.accumulatedDamage);
         compoundTag.putBoolean("SpawnEffectsPlayed", this.spawnEffectsPlayed);
     }
 
@@ -365,6 +364,10 @@ public class InventorySpiritEntity extends Entity {
         if (!this.spawnEffectsPlayed) {
             this.spawnEffectsPlayed = true;
             playSpawnEffects();
+        }
+
+        if (this.accumulatedDamage > 0.0f) {
+            this.accumulatedDamage = Math.max(0.0f, this.accumulatedDamage - DAMAGE_DECAY_PER_TICK);
         }
 
         applyFloatPhysics();
@@ -435,14 +438,6 @@ public class InventorySpiritEntity extends Entity {
 
         this.setDeltaMovement(dx, dy, dz);
         this.move(MoverType.SELF, this.getDeltaMovement());
-
-        Vec3 postMove = this.getDeltaMovement();
-        if (this.horizontalCollision || this.verticalCollision) {
-            double bx = this.horizontalCollision ? -postMove.x * ELASTICITY : postMove.x;
-            double by = this.verticalCollision ? -postMove.y * ELASTICITY : postMove.y;
-            double bz = this.horizontalCollision ? -postMove.z * ELASTICITY : postMove.z;
-            this.setDeltaMovement(bx, by, bz);
-        }
     }
 
     @Override
@@ -466,7 +461,6 @@ public class InventorySpiritEntity extends Entity {
             playSound(ISSoundEvents.SPIRIT_AMBIENT.get(), 1.0f, randomPitch);
         }
     }
-
     private void playCollectEffects() {
         if (!(this.level() instanceof ServerLevel serverLevel)) return;
         float randomPitch = 0.8F + random.nextFloat() * 0.4F;

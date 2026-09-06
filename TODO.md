@@ -4,8 +4,6 @@
 - [X] Aeronautics support (just need the proper entity tags so they attach to sublevels)
 - [X] Punch to destroy and drop items (now takes a few hits instead of one, minecart/boat-style)
 - [X] Right click to collect into inventory
-- [X] Make the spirits bouncy against blocks :3
-  - I dont think this works properly but im too lazy to fix it so
 - [X] custom sounds (one for breaking, hitting, collecting, spawning, and ambient)
 - [ ] (more) custom particles (one for breaking, hitting, collecting, and spawning)
   - ok well technically there's already collecting particles but idk if i'm satisfied with them?
@@ -20,7 +18,7 @@
   - [X] add owner
 - [X] make it not crash if you dont have curios (and make sure the same doesnt happen for Cosmetic Armor Reworked)
 - [X] make them not spawn if you dont have litterally anything
-- [ ] Make the spirits regen health like minecarts and boats
+- [X] Make the spirits regen health like minecarts and boats
 - [ ] Store date of death, death location/rotation, and death reason on the entity for future config options 
 - [ ] maybe make spirits do what items do where they pop up if they are inside of a block
 - [X] fix spirits being erased by aeronautics if one is spawned at a sublevel but you are too far away from it when you died

@@ -37,13 +37,7 @@
     "category": "players",
     "subtitle": "subtitle.inventory_spirits.spirit_reject",
     "sounds": [
-      {
-        "name": "block.note_block.bass",
-        "type": "event",
-        "pitch": 0.5,
-        "volume": 1.0,
-        "attenuation_distance": 0
-      }
+      "inventory_spirits:entity/inventory_spirit/reject"
     ]
   },
   "spirit_ambient": {
@@ -52,7 +46,8 @@
     "sounds": [
       {
         "name": "inventory_spirits:entity/inventory_spirit/ambient",
-        "volume": 0.66
+        "volume": 0.5,
+        "attenuation_distance": 64
       }
     ]
   }
