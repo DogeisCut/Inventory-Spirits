@@ -28,7 +28,7 @@
 forgoe the whole retaining in sublevels thing
 
 # Next Release
-- [ ] Cool spawn animation
+- [ ] Cool spawn animation, like synced with player death or smth
 - [ ] Config Options 
   - [ ] Create on void death (default: true)
   - [ ] Create for creative players (default: true)
