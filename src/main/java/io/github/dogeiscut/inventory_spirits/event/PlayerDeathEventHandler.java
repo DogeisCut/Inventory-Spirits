@@ -31,13 +31,16 @@ public class PlayerDeathEventHandler {
         Level level = player.level();
 
         InventorySpiritEntity entity = InventorySpiritEntity.fromPlayer(player, true);
+        if (entity == null) {
+            return;
+        }
         entity.moveTo(player.getX(), player.getY() + 0.25d, player.getZ(), player.getYRot(), player.getXRot());
 
         if (ModList.get().isLoaded("sable")) {
-            final SubLevel subLevel = Sable.HELPER.getLastTrackingSubLevel(player);
-            if (subLevel != null) {
-
-            }
+//            final SubLevel subLevel = Sable.HELPER.getLastTrackingSubLevel(player);
+//            if (subLevel != null) {
+//
+//            }
         }
 
         level.addFreshEntity(entity);

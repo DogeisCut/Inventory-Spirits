@@ -17,6 +17,7 @@ public class ISSoundEvents {
     public static final DeferredHolder<SoundEvent, SoundEvent> SPIRIT_BREAK = register("spirit_break");
     public static final DeferredHolder<SoundEvent, SoundEvent> SPIRIT_COLLECT = register("spirit_collect");
     public static final DeferredHolder<SoundEvent, SoundEvent> SPIRIT_AMBIENT = register("spirit_ambient");
+    public static final DeferredHolder<SoundEvent, SoundEvent> SPIRIT_REJECT = register("spirit_reject");
 
     private static DeferredHolder<SoundEvent, SoundEvent> register(String name) {
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(InventorySpirits.ID, name);

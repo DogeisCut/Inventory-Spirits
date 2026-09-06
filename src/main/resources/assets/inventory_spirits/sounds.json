@@ -3,35 +3,57 @@
     "category": "neutral",
     "subtitle": "subtitle.inventory_spirits.spirit_spawn",
     "sounds": [
-      "inventory_spirits:spirit_spawn"
+      {
+        "name": "inventory_spirits:entity/inventory_spirit/spawn",
+        "volume": 0.5
+      }
     ]
   },
   "spirit_hit": {
     "category": "neutral",
     "subtitle": "subtitle.inventory_spirits.spirit_hit",
     "sounds": [
-      "inventory_spirits:spirit_hit"
+      "inventory_spirits:entity/inventory_spirit/hit1",
+      "inventory_spirits:entity/inventory_spirit/hit2",
+      "inventory_spirits:entity/inventory_spirit/hit3"
     ]
   },
   "spirit_break": {
     "category": "neutral",
     "subtitle": "subtitle.inventory_spirits.spirit_break",
     "sounds": [
-      "inventory_spirits:spirit_break"
+      "inventory_spirits:entity/inventory_spirit/break1",
+      "inventory_spirits:entity/inventory_spirit/break2"
     ]
   },
   "spirit_collect": {
     "category": "players",
     "subtitle": "subtitle.inventory_spirits.spirit_collect",
     "sounds": [
-      "inventory_spirits:spirit_collect"
+      "inventory_spirits:entity/inventory_spirit/collect"
+    ]
+  },
+  "spirit_reject": {
+    "category": "players",
+    "subtitle": "subtitle.inventory_spirits.spirit_reject",
+    "sounds": [
+      {
+        "name": "block.note_block.bass",
+        "type": "event",
+        "pitch": 0.5,
+        "volume": 1.0,
+        "attenuation_distance": 0
+      }
     ]
   },
   "spirit_ambient": {
     "category": "neutral",
     "subtitle": "subtitle.inventory_spirits.spirit_ambient",
     "sounds": [
-      "inventory_spirits:spirit_ambient"
+      {
+        "name": "inventory_spirits:entity/inventory_spirit/ambient",
+        "volume": 0.66
+      }
     ]
   }
 }

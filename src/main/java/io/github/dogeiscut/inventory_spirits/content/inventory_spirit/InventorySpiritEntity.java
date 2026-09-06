@@ -12,8 +12,13 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
@@ -21,22 +26,17 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.ExperienceOrb;
-import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModList;
+import org.jetbrains.annotations.Nullable;
 import top.theillusivec4.curios.api.CuriosApi;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class InventorySpiritEntity extends Entity {
 
@@ -52,10 +52,14 @@ public class InventorySpiritEntity extends Entity {
     private static final int VERTICAL_SAFETY_MARGIN = 1;
     // TODO (Next Release): Config option
     private static final double ELASTICITY = 0.7d;
+    // TODO (Next Release): Config option
+    private static final boolean ALLOW_STEALING = false;
+
+    private static final EntityDataAccessor<Optional<UUID>> DATA_OWNER_UUID =
+            SynchedEntityData.defineId(InventorySpiritEntity.class, EntityDataSerializers.OPTIONAL_UUID);
 
     private final List<StoredItemRecord> storedItems = new ArrayList<>();
     private int totalExperience;
-    private UUID owner;
 
     private float health = MAX_HEALTH;
     private boolean spawnEffectsPlayed = false;
@@ -67,15 +71,16 @@ public class InventorySpiritEntity extends Entity {
     public InventorySpiritEntity(EntityType<?> entityType, Level level) {
         super(entityType, level);
         this.totalExperience = 0;
-        this.owner = new UUID(0, 0);
     }
 
+    @Nullable
     public static InventorySpiritEntity fromPlayer(Player player, boolean clearPlayer) {
         InventorySpiritEntity entity = new InventorySpiritEntity(ISEntities.INVENTORY_SPIRIT.get(), player.level());
 
         entity.setOwner(player.getUUID());
 
         int bankedExperience = ExperienceHelper.getPlayerExperiencePoints(player);
+        if (bankedExperience == 0 && )
         entity.setTotalExperience(bankedExperience);
         if (clearPlayer) {
             player.totalExperience = 0;
@@ -174,7 +179,37 @@ public class InventorySpiritEntity extends Entity {
     @Override
     public InteractionResult interact(Player player, InteractionHand hand) {
         if (!this.level().isClientSide()) {
-            this.collect(player);
+            if (ALLOW_STEALING || player.getUUID().equals(getOwner()) || getOwner() == null) {
+                if (player.isShiftKeyDown()) {
+                    this.collect(player);
+                } else {
+                    player.displayClientMessage(Component.translatable("entity.inventory_spirits.inventory_spirit.hint"), true);
+                    ClientboundSoundPacket packet = new ClientboundSoundPacket(
+                            ISSoundEvents.SPIRIT_REJECT,
+                            SoundSource.NEUTRAL,
+                            player.getX(),
+                            player.getY(),
+                            player.getZ(),
+                            1.0f,
+                            1.0f,
+                            player.getRandom().nextLong()
+                    );
+                    ((ServerPlayer) player).connection.send(packet);
+                }
+            } else {
+                player.displayClientMessage(Component.translatable("entity.inventory_spirits.inventory_spirit.steal"), true);
+                ClientboundSoundPacket packet = new ClientboundSoundPacket(
+                        ISSoundEvents.SPIRIT_REJECT,
+                        SoundSource.NEUTRAL,
+                        player.getX(),
+                        player.getY(),
+                        player.getZ(),
+                        1.0f,
+                        1.0f,
+                        player.getRandom().nextLong()
+                );
+                ((ServerPlayer) player).connection.send(packet);
+            }
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.CONSUME;
@@ -190,6 +225,10 @@ public class InventorySpiritEntity extends Entity {
         if (this.level().isClientSide() || this.isRemoved() || this.isInvulnerableTo(source)) {
             return false;
         }
+        // TODO (Next Release): Additional config for handling stealing with breaking
+//        if (ALLOW_STEALING || source.getEntity().getUUID().equals(getOwner()) || getOwner() == null) {
+//
+//        }
 
         this.markHurt();
         this.health -= amount;
@@ -197,8 +236,9 @@ public class InventorySpiritEntity extends Entity {
         if (this.health <= 0.0f) {
             this.drop();
         } else if (this.level() instanceof ServerLevel serverLevel) {
+            float randomPitch = 0.8F + random.nextFloat() * 0.4F;
             serverLevel.playSound(null, this.getX(), this.getY(), this.getZ(),
-                    ISSoundEvents.SPIRIT_HIT.get(), SoundSource.NEUTRAL, 0.6f, 1.0f);
+                    ISSoundEvents.SPIRIT_HIT.get(), SoundSource.NEUTRAL, 1.0f, randomPitch);
         }
 
         return true;
@@ -224,12 +264,13 @@ public class InventorySpiritEntity extends Entity {
         return Collections.unmodifiableList(this.storedItems);
     }
 
+    @Nullable
     public UUID getOwner() {
-        return owner;
+        return this.entityData.get(DATA_OWNER_UUID).orElse(null);
     }
 
-    public void setOwner(UUID owner) {
-        this.owner = owner;
+    public void setOwner(@Nullable UUID owner) {
+        this.entityData.set(DATA_OWNER_UUID, Optional.ofNullable(owner));
     }
 
     public int getTotalExperience() {
@@ -242,7 +283,7 @@ public class InventorySpiritEntity extends Entity {
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
-
+        builder.define(DATA_OWNER_UUID, Optional.empty());
     }
 
     @Override
@@ -256,7 +297,7 @@ public class InventorySpiritEntity extends Entity {
                 this.storedItems.add(StoredItemRecord.load(tag, registries));
             }
         }
-        if (compoundTag.contains("Owner")) this.owner = compoundTag.getUUID("Owner");
+        if (compoundTag.hasUUID("Owner")) this.setOwner(compoundTag.getUUID("Owner"));
         if (compoundTag.contains("TotalExperience")) this.totalExperience = compoundTag.getInt("TotalExperience");
         if (compoundTag.contains("Health")) this.health = compoundTag.getFloat("Health");
         if (compoundTag.contains("SpawnEffectsPlayed")) this.spawnEffectsPlayed = compoundTag.getBoolean("SpawnEffectsPlayed");
@@ -270,7 +311,8 @@ public class InventorySpiritEntity extends Entity {
             list.add(record.save(registries));
         }
         compoundTag.put("StoredItemsList", list);
-        compoundTag.putUUID("Owner", this.owner);
+        UUID owner = this.getOwner();
+        if (owner != null) compoundTag.putUUID("Owner", owner);
         compoundTag.putInt("TotalExperience", this.totalExperience);
         compoundTag.putFloat("Health", this.health);
         compoundTag.putBoolean("SpawnEffectsPlayed", this.spawnEffectsPlayed);
@@ -379,8 +421,8 @@ public class InventorySpiritEntity extends Entity {
 
     private void playSpawnEffects() {
         if (!(this.level() instanceof ServerLevel serverLevel)) return;
-        serverLevel.playSound(null, this.getX(), this.getY(), this.getZ(),
-                ISSoundEvents.SPIRIT_SPAWN.get(), SoundSource.NEUTRAL, 0.25f, 1.6f);
+        float randomPitch = 0.8F + random.nextFloat() * 0.4F;
+        playSound(ISSoundEvents.SPIRIT_SPAWN.get(), 1.0f, randomPitch);
         serverLevel.sendParticles(ParticleTypes.POOF,
                 this.getX(), this.getY() + this.getBbHeight() * 0.5d, this.getZ(),
                 12, 0.25d, 0.25d, 0.25d, 0.01d);
@@ -388,16 +430,17 @@ public class InventorySpiritEntity extends Entity {
 
     private void playAmbientSounds() {
         if (!(this.level() instanceof ServerLevel serverLevel)) return;
-        if (this.tickCount % 100 == 0 && this.random.nextFloat() < 0.35f) {
-            serverLevel.playSound(null, this.getX(), this.getY(), this.getZ(),
-                    ISSoundEvents.SPIRIT_AMBIENT.get(), SoundSource.NEUTRAL, 0.35f, 1.0f);
+        float randomPitch = 0.8F + random.nextFloat() * 0.4F;
+        if (this.tickCount % 33 == 0 && this.random.nextFloat() < 0.35f) {
+            playSound(ISSoundEvents.SPIRIT_AMBIENT.get(), 1.0f, randomPitch);
         }
     }
 
     private void playCollectEffects() {
         if (!(this.level() instanceof ServerLevel serverLevel)) return;
+        float randomPitch = 0.8F + random.nextFloat() * 0.4F;
         serverLevel.playSound(null, this.getX(), this.getY(), this.getZ(),
-                ISSoundEvents.SPIRIT_COLLECT.get(), SoundSource.PLAYERS, 0.8f, 2.1f);
+                ISSoundEvents.SPIRIT_COLLECT.get(), SoundSource.PLAYERS, 1.0f, randomPitch);
         serverLevel.sendParticles(ISParticles.INVENTORY_SPIRIT_DUST.get(),
                 this.getX(), this.getY() + this.getBbHeight() * 0.5d, this.getZ(),
                 16, 0.3d, 0.3d, 0.3d, 0.05d);
@@ -405,8 +448,9 @@ public class InventorySpiritEntity extends Entity {
 
     private void playDestroyEffects() {
         if (!(this.level() instanceof ServerLevel serverLevel)) return;
+        float randomPitch = 0.8F + random.nextFloat() * 0.4F;
         serverLevel.playSound(null, this.getX(), this.getY(), this.getZ(),
-                ISSoundEvents.SPIRIT_BREAK.get(), SoundSource.NEUTRAL, 0.7f, 0.9f);
+                ISSoundEvents.SPIRIT_BREAK.get(), SoundSource.NEUTRAL, 1.0f, randomPitch);
         serverLevel.sendParticles(ParticleTypes.POOF,
                 this.getX(), this.getY() + this.getBbHeight() * 0.5d, this.getZ(),
                 14, 0.3d, 0.3d, 0.3d, 0.03d);

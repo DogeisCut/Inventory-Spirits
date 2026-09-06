@@ -23,4 +23,21 @@ public final class ExperienceHelper {
         int pointsIntoCurrentLevel = Math.round(player.experienceProgress * player.getXpNeededForNextLevel());
         return pointsForCurrentLevel + pointsIntoCurrentLevel;
     }
+
+    public static int getLevelForExperience(int totalExperience) {
+        int level = 0;
+        while (getExperienceForLevel(level + 1) <= totalExperience) {
+            level++;
+        }
+        return level;
+    }
+
+    public static float getProgressForExperience(int totalExperience) {
+        int level = getLevelForExperience(totalExperience);
+        int xpAtLevelStart = getExperienceForLevel(level);
+        int xpForThisLevel = getExperienceForLevel(level + 1) - xpAtLevelStart;
+        if (xpForThisLevel <= 0)
+            return 0f;
+        return (totalExperience - xpAtLevelStart) / (float) xpForThisLevel;
+    }
 }
