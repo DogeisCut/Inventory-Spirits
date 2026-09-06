@@ -1,5 +1,8 @@
 package io.github.dogeiscut.inventory_spirits.content.inventory_spirit;
 
+import dev.ryanhcode.sable.Sable;
+import dev.ryanhcode.sable.mixinterface.entity.entities_stick_sublevels.EntityStickExtension;
+import dev.ryanhcode.sable.sublevel.SubLevel;
 import io.github.dogeiscut.inventory_spirits.registry.ISEntities;
 import io.github.dogeiscut.inventory_spirits.registry.ISParticles;
 import io.github.dogeiscut.inventory_spirits.registry.ISSoundEvents;
@@ -169,6 +172,7 @@ public class InventorySpiritEntity extends Entity {
             this.totalExperience = 0;
         }
 
+        player.displayClientMessage(Component.translatable("entity.inventory_spirits.inventory_spirit.collected"), false);
         playCollectEffects();
         this.discard();
     }
@@ -374,6 +378,30 @@ public class InventorySpiritEntity extends Entity {
         double dx = motion.x;
         double dy = motion.y;
         double dz = motion.z;
+
+        // my horrid attempt at fixing this thing's lerping when interacting with sub-levels.
+        // it doesn't work.
+        if (ModList.get().isLoaded("sable")) {
+            SubLevel trackingSubLevel = Sable.HELPER.getTrackingSubLevel(this);
+            if (trackingSubLevel != null) {
+                EntityStickExtension stickExtension = (EntityStickExtension) this;
+                Vec3 plotPosition = stickExtension.sable$getPlotPosition();
+
+                if (plotPosition != null) {
+                    dx *= FRICTION;
+                    dy *= FRICTION;
+                    dz *= FRICTION;
+
+                    dx = Mth.clamp(dx, -MAX_FLOAT_SPEED, MAX_FLOAT_SPEED);
+                    dy = Mth.clamp(dy, -MAX_FLOAT_SPEED, MAX_FLOAT_SPEED);
+                    dz = Mth.clamp(dz, -MAX_FLOAT_SPEED, MAX_FLOAT_SPEED);
+
+                    this.setDeltaMovement(dx, dy, dz);
+                    stickExtension.sable$setPlotPosition(plotPosition.add(dx, dy, dz));
+                    return;
+                }
+            }
+        }
 
         int minY = serverLevel.getMinBuildHeight();
         int maxY = serverLevel.getMaxBuildHeight();

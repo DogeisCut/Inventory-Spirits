@@ -1,6 +1,7 @@
 package io.github.dogeiscut.inventory_spirits.event;
 
 import dev.ryanhcode.sable.Sable;
+import dev.ryanhcode.sable.mixinterface.entity.entities_stick_sublevels.EntityStickExtension;
 import dev.ryanhcode.sable.sublevel.SubLevel;
 import io.github.dogeiscut.inventory_spirits.InventorySpirits;
 import io.github.dogeiscut.inventory_spirits.content.inventory_spirit.InventorySpiritEntity;
@@ -40,13 +41,14 @@ public class PlayerDeathEventHandler {
 
         if (ModList.get().isLoaded("sable")) {
             SubLevel subLevel = Sable.HELPER.getTrackingSubLevel(player);
-            if (subLevel == null) {
-                subLevel = Sable.HELPER.getLastTrackingSubLevel(player);
-            }
 
             if (subLevel != null) {
                 Vec3 plotLocalPos = subLevel.logicalPose().transformPositionInverse(deathPos);
-                entity.moveTo(plotLocalPos.x, plotLocalPos.y, plotLocalPos.z, player.getYRot(), player.getXRot());
+
+                ((EntityStickExtension) entity).sable$setPlotPosition(plotLocalPos);
+
+                Vec3 worldPos = subLevel.logicalPose().transformPosition(plotLocalPos);
+                entity.moveTo(worldPos.x, worldPos.y, worldPos.z, player.getYRot(), player.getXRot());
                 level.addFreshEntity(entity);
                 return;
             }
@@ -55,17 +57,4 @@ public class PlayerDeathEventHandler {
         entity.moveTo(deathPos.x, deathPos.y, deathPos.z, player.getYRot(), player.getXRot());
         level.addFreshEntity(entity);
     }
-
-//    @SubscribeEvent(priority = EventPriority.HIGHEST)
-//    public static void onExperienceDrop(LivingExperienceDropEvent event) {
-//        if (!(event.getEntity() instanceof Player player) || player.level().isClientSide()) {
-//            return;
-//        }
-//
-//        if (player.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
-//            return;
-//        }
-//
-//        event.setCanceled(true);
-//    }
 }

@@ -10,7 +10,9 @@
   "jade.inventory_spirits.contents": "Inventory Spirit Contents",
   "jade.inventory_spirits.item_count": "Items: %d",
   "jade.inventory_spirits.experience": "%d ",
-  "jade.inventory_spirits.inventory_spirit_named": "%d's Spirit",
-  "jade.inventory_spirits.owner": "Owner: %d",
-  "entity.inventory_spirits.inventory_spirit.steal": "You do not own this spirit"
+  "jade.inventory_spirits.inventory_spirit_named": "%s's Spirit",
+  "jade.inventory_spirits.owner": "Owner: %s",
+  "entity.inventory_spirits.inventory_spirit.steal": "You do not own this spirit",
+  "config.jade.plugin_inventory_spirits.spirit_contents": "Inventory Spirit Contents",
+  "entity.inventory_spirits.inventory_spirit.collected": "Inventory collected"
 }

@@ -19,11 +19,15 @@ Cosmetic armor will properly be returned to the slot they were in before death, 
 
 - Sable
 
-Spirits will attach to sublevels if a player dies on one.
+Spirits will track to sub-levels if a player dies on one.
+
+Well, they are supposed to anyway. It's a bit buggy at the moment,
+and they interact and lerp really weirdly with sub-levels.
+I'm completely lost on how to fix it at this point.
 
 - Jade
 
-Jade will display inventory spirit contents, health, and who's it was.
+Jade will display inventory spirit contents, experience as a bar, health, and change its name to the spirit owner.
 
 ## Config Options
 - Ironically there's basically none yet. But these will be coming next release!
