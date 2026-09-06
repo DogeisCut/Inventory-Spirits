@@ -23,7 +23,7 @@
 - [ ] Make the spirits regen health like minecarts and boats
 - [ ] Store date of death, death location/rotation, and death reason on the entity for future config options 
 - [ ] maybe make spirits do what items do where they pop up if they are inside of a block
-- [ ] fix spirits being erased by aeronautics if one is spawned at a sublevel but you are too far away from it when you died
+- [X] fix spirits being erased by aeronautics if one is spawned at a sublevel but you are too far away from it when you died
   - might want to just rethink how im doing sable support at this point, it'd probably just be easier to fix the lerping bugs and
 forgoe the whole retaining in sublevels thing
 
