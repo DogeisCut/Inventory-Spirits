@@ -21,6 +21,8 @@
 - [X] make it not crash if you dont have curios (and make sure the same doesnt happen for Cosmetic Armor Reworked)
 - [X] make them not spawn if you dont have litterally anything
 - [ ] Make the spirits regen health like minecarts and boats
+- [ ] Store date of death, death location/rotation, and death reason on the entity for future config options 
+- [ ] maybe make spirits do what items do where they pop up if they are inside of a block
 
 # Next Release
 
