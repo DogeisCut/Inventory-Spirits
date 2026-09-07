@@ -79,7 +79,7 @@ public class InventorySpiritComponentProvider implements IEntityComponentProvide
         Component levelText = Component.translatable("jade.inventory_spirits.experience", level);
         OutlinedTextElement outlinedTextElement = new OutlinedTextElement(levelText, XP_TEXT_COLOR);
         tooltip.add(outlinedTextElement);
-        outlinedTextElement.message(level + "levels");
+        outlinedTextElement.message(level + " levels");
 
         IElement bar = elements.progress(progress, XP_BAR_BACKGROUND, XP_BAR_PROGRESS, XP_BAR_WIDTH, XP_BAR_HEIGHT, true).translate(new Vec2(0, -1));
         bar.message(pointsIntoLevel + " out of " + xpForThisLevel + " points");

@@ -1,8 +1,6 @@
 package io.github.dogeiscut.inventory_spirits.content.inventory_spirit;
 
-import dev.ryanhcode.sable.Sable;
 import dev.ryanhcode.sable.mixinterface.entity.entities_stick_sublevels.EntityStickExtension;
-import dev.ryanhcode.sable.sublevel.SubLevel;
 import io.github.dogeiscut.inventory_spirits.registry.ISEntities;
 import io.github.dogeiscut.inventory_spirits.registry.ISParticles;
 import io.github.dogeiscut.inventory_spirits.registry.ISSoundEvents;
@@ -57,6 +55,8 @@ public class InventorySpiritEntity extends Entity {
     private static final double FRICTION = 0.70d;
     // TODO (Next Release): Config option
     private static final int VERTICAL_SAFETY_MARGIN = 1;
+    // TODO (Next Release): Config option
+    private static final double MAX_VOID_RISE_SPEED = 1.0d;
     // TODO (Next Release): Config option
     private static final boolean ALLOW_STEALING = true;
     // TODO (Next Release): Config option
@@ -171,6 +171,8 @@ public class InventorySpiritEntity extends Entity {
     }
 
     public void drop() {
+        if (this.isRemoved()) return;
+
         for (StoredItemRecord storedItem : storedItems) {
             this.spawnAtLocation(storedItem.stack().copy(), getBbHeight()/2.0f);
         }
@@ -183,7 +185,7 @@ public class InventorySpiritEntity extends Entity {
     }
 
     public void collect(Player player) {
-        if (this.level().isClientSide()) return;
+        if (this.level().isClientSide() || this.isRemoved()) return;
 
         for (StoredItemRecord record : storedItems) {
             InventoryRestoreHelper.restoreItem(player, record);
@@ -209,6 +211,8 @@ public class InventorySpiritEntity extends Entity {
     @Override
     public InteractionResult interact(Player player, InteractionHand hand) {
         if (!this.level().isClientSide()) {
+            if (this.isRemoved()) return InteractionResult.PASS;
+
             if (ALLOW_STEALING || player.getUUID().equals(getOwner()) || getOwner() == null) {
                 if (player.isShiftKeyDown()) {
                     this.collect(player);
@@ -437,6 +441,11 @@ public class InventorySpiritEntity extends Entity {
     private void applyFloatPhysics() {
         if (!(this.level() instanceof ServerLevel serverLevel)) return;
 
+        if (ModList.get().isLoaded("sable") && ((EntityStickExtension) this).sable$getPlotPosition() != null) {
+            this.setDeltaMovement(Vec3.ZERO);
+            return;
+        }
+
         this.noPhysics = !this.level().noCollision(this, this.getBoundingBox().deflate(1.0E-7));
         if (this.noPhysics) {
             this.moveTowardsClosestSpace(this.getX(), (this.getBoundingBox().minY + this.getBoundingBox().maxY) / 2.0d, this.getZ());
@@ -461,7 +470,9 @@ public class InventorySpiritEntity extends Entity {
         double lowerBound = minY + VERTICAL_SAFETY_MARGIN;
         double upperBound = maxY - VERTICAL_SAFETY_MARGIN;
 
-        if (y < lowerBound) {
+        boolean belowVoidBoundary = y < lowerBound;
+
+        if (belowVoidBoundary) {
             dy += FLOAT_ACCELERATION * (1.0d + (lowerBound - y) * 0.05d);
         } else if (inLava) {
             double depthBelowSurface = Math.max(lavaSurfaceY - y, 0.0d);
@@ -475,8 +486,10 @@ public class InventorySpiritEntity extends Entity {
         dx *= FRICTION;
         dz *= FRICTION;
 
+        double verticalSpeedCap = belowVoidBoundary ? MAX_VOID_RISE_SPEED : MAX_FLOAT_SPEED;
+
         dx = Mth.clamp(dx, -MAX_FLOAT_SPEED, MAX_FLOAT_SPEED);
-        dy = Mth.clamp(dy, -MAX_FLOAT_SPEED, MAX_FLOAT_SPEED);
+        dy = Mth.clamp(dy, -verticalSpeedCap, verticalSpeedCap);
         dz = Mth.clamp(dz, -MAX_FLOAT_SPEED, MAX_FLOAT_SPEED);
 
         this.setDeltaMovement(dx, dy, dz);

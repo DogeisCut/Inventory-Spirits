@@ -15,20 +15,20 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 public class ISConfig {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
-    private static final ModConfigSpec.BooleanValue KICK_ITEMS_FROM_ORIGINAL_SLOT = BUILDER
-            .comment(
-                    "Whether restoring an item to its original inventory slot should kick out whatever is currently occupying that slot.",
-                    "false (default): if the original slot is occupied, the item is placed anywhere else that fits (or dropped if the inventory is full).",
-                    "true: the item always returns to its original slot, and whatever was there is placed elsewhere (or dropped) instead."
-            )
-            .define("kickItemsFromOriginalSlot", false);
+//    private static final ModConfigSpec.BooleanValue KICK_ITEMS_FROM_ORIGINAL_SLOT = BUILDER
+//            .comment(
+//                    "Whether restoring an item to its original inventory slot should kick out whatever is currently occupying that slot.",
+//                    "false (default): if the original slot is occupied, the item is placed anywhere else that fits (or dropped if the inventory is full).",
+//                    "true: the item always returns to its original slot, and whatever was there is placed elsewhere (or dropped) instead."
+//            )
+//            .define("kickItemsFromOriginalSlot", false);
 
     public static final ModConfigSpec SPEC = BUILDER.build();
 
-    public static boolean kickItemsFromOriginalSlot;
-
-    @SubscribeEvent
-    static void onLoad(final ModConfigEvent event) {
-        kickItemsFromOriginalSlot = KICK_ITEMS_FROM_ORIGINAL_SLOT.get();
-    }
+//    public static boolean kickItemsFromOriginalSlot;
+//
+//    @SubscribeEvent
+//    static void onLoad(final ModConfigEvent event) {
+//        kickItemsFromOriginalSlot = KICK_ITEMS_FROM_ORIGINAL_SLOT.get();
+//    }
 }

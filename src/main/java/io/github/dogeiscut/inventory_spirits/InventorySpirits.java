@@ -5,10 +5,14 @@ import io.github.dogeiscut.inventory_spirits.registry.ISConfig;
 import io.github.dogeiscut.inventory_spirits.registry.ISEntities;
 import io.github.dogeiscut.inventory_spirits.registry.ISParticles;
 import io.github.dogeiscut.inventory_spirits.registry.ISSoundEvents;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.client.gui.ConfigurationScreen;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import org.slf4j.Logger;
 
 @Mod(InventorySpirits.ID)
@@ -23,5 +27,9 @@ public class InventorySpirits {
         ISSoundEvents.register(modEventBus);
 
         modContainer.registerConfig(ModConfig.Type.COMMON, ISConfig.SPEC);
+
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+        }
     }
 }

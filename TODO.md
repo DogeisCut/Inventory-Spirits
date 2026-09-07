@@ -22,13 +22,13 @@
   - might want to just rethink how im doing sable support at this point, it'd probably just be easier to fix the lerping bugs and
 forgoe the whole retaining in sublevels thing
 - [X] Testing, (with friends!!)
-  - [ ] BUG: spirit will be invisible if it was made outside of a client's loaded chunks
-    - [ ] And rareley just randomly????
+  - [X] BUG: spirit will be invisible if it was made outside of a client's loaded chunks
+    - [X] And rareley just randomly????
 will come back if you leave the area and come back.
   - [X] BUG(?): potential dupe with main armor slots and curios? Seemingly was a fluke/friend not paying attention though.
-    - [ ] Unable to reproduce, worth adding some additional dupe precautions though
-  - [ ] CONSIDERATION: spirits come out really fast from the void, it's kind of jarring how high they end up from a void hole...
-  - [ ] BUG: Spirits tracking a sub-level build up velocity below the void/in lava (they should just ignore it) 
+    - [X] Unable to reproduce, worth adding some additional dupe precautions though
+  - [X] CONSIDERATION: spirits come out really fast from the void, it's kind of jarring how high they end up from a void hole...
+  - [X] BUG: Spirits tracking a sub-level build up velocity below the void/in lava (they should just ignore it) 
 
 # Next Release
 - [ ] Cool spawn animation, like synced with player death or smth
