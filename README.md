@@ -27,7 +27,7 @@ I'm completely lost on how to fix it at this point.
 
 - Jade
 
-Jade will display inventory spirit contents, experience as a bar, health, and change its name to the spirit owner.
+Jade will display inventory spirit contents, experience as a bar, and change its name to the spirit owner.
 
 ## Config Options
 - Ironically there's basically none yet. But these will be coming next release!
