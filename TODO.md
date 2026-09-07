@@ -23,6 +23,7 @@
 forgoe the whole retaining in sublevels thing
 - [ ] Testing, (with friends!!)
   - [ ] BUG: spirit will be invisible if it was made outside of a client's loaded chunks
+    - [ ] And rareley just randomly????
 will come back if you leave the area and come back.
   - [X] BUG(?): potential dupe with main armor slots and curios? Seemingly was a fluke/friend not paying attention though.
     - [ ] Unable to reproduce, worth adding some additional dupe precautions though
