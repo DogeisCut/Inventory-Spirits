@@ -21,7 +21,7 @@
 - [X] fix spirits being erased by aeronautics if one is spawned at a sublevel but you are too far away from it when you died
   - might want to just rethink how im doing sable support at this point, it'd probably just be easier to fix the lerping bugs and
 forgoe the whole retaining in sublevels thing
-- [ ] Testing, (with friends!!)
+- [X] Testing, (with friends!!)
   - [ ] BUG: spirit will be invisible if it was made outside of a client's loaded chunks
     - [ ] And rareley just randomly????
 will come back if you leave the area and come back.
