@@ -25,8 +25,8 @@ public class ISEntities {
         .eyeHeight(0.5f)
         // TODO (Next Release): Config option
         .fireImmune()
-        .clientTrackingRange(10)
-        .updateInterval(20)
+        .clientTrackingRange(16)
+        .updateInterval(3)
         .build("inventory_spirit")
     );
 

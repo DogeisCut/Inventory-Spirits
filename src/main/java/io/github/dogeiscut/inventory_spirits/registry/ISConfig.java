@@ -25,10 +25,10 @@ public class ISConfig {
 
     public static final ModConfigSpec SPEC = BUILDER.build();
 
-//    public static boolean kickItemsFromOriginalSlot;
-//
-//    @SubscribeEvent
-//    static void onLoad(final ModConfigEvent event) {
-//        kickItemsFromOriginalSlot = KICK_ITEMS_FROM_ORIGINAL_SLOT.get();
-//    }
+    // public static boolean kickItemsFromOriginalSlot;
+
+    @SubscribeEvent
+    static void onLoad(final ModConfigEvent event) {
+        //kickItemsFromOriginalSlot = KICK_ITEMS_FROM_ORIGINAL_SLOT.get();
+    }
 }

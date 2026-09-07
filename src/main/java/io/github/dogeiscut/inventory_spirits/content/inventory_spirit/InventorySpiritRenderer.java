@@ -27,7 +27,7 @@ public class InventorySpiritRenderer extends EntityRenderer<InventorySpiritEntit
     public void render(InventorySpiritEntity entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         super.render(entity, entityYaw, partialTick, poseStack, buffer, packedLight);
 
-        if (entity.isInvisible()) return;
+        //if (entity.isInvisible()) return;
 
         poseStack.pushPose();
 
