@@ -24,7 +24,8 @@ forgoe the whole retaining in sublevels thing
 - [ ] Testing, (with friends!!)
   - [ ] BUG: spirit will be invisible if it was made outside of a client's loaded chunks
 will come back if you leave the area and come back.
-  - [ ] BUG(?): potential dupe with main armor slots and curios? Seemingly was a fluke/friend not paying attention though.
+  - [X] BUG(?): potential dupe with main armor slots and curios? Seemingly was a fluke/friend not paying attention though.
+    - [ ] Unable to reproduce, worth adding some additional dupe precautions though
   - [ ] CONSIDERATION: spirits come out really fast from the void, it's kind of jarring how high they end up from a void hole...
   - [ ] BUG: Spirits tracking a sub-level build up velocity below the void/in lava (they should just ignore it) 
 
@@ -32,6 +33,8 @@ will come back if you leave the area and come back.
 - [ ] Cool spawn animation, like synced with player death or smth
 - [ ] (more) custom particles (one for breaking and maybe other stuff)
 - [ ] Fix weird lerping delay for spirits teacking sub-levels
+- [ ] Give spirits a bigger hitbox when attacked/interacted with?
+  - Wind charges do it but I can't figure out how even when looking at their code...
 - [ ] Config Options 
   - [ ] Create on void death (default: true)
   - [ ] Create for creative players (default: true)
