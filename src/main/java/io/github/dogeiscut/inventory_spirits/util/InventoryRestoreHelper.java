@@ -1,7 +1,6 @@
 package io.github.dogeiscut.inventory_spirits.util;
 
 import io.github.dogeiscut.inventory_spirits.content.inventory_spirit.StoredItemRecord;
-import io.github.dogeiscut.inventory_spirits.registry.ISConfig;
 import lain.mods.cos.api.CosArmorAPI;
 import lain.mods.cos.api.inventory.CAStacksBase;
 import net.minecraft.core.NonNullList;
@@ -72,7 +71,7 @@ public final class InventoryRestoreHelper {
 //            slots.set(slot, stack.copy());
 //            safeGiveOrDrop(player, itemToKick);
 //        } else {
-            safeGiveOrDrop(player, stack);
+        safeGiveOrDrop(player, stack);
 //        }
     }
 
@@ -92,12 +91,6 @@ public final class InventoryRestoreHelper {
     }
 
     private interface SlotAccessor {
-        int size();
-
-        ItemStack get(int slot);
-
-        void set(int slot, ItemStack stack);
-
         static SlotAccessor of(NonNullList<ItemStack> list) {
             return new SlotAccessor() {
                 public int size() {
@@ -129,5 +122,11 @@ public final class InventoryRestoreHelper {
                 }
             };
         }
+
+        int size();
+
+        ItemStack get(int slot);
+
+        void set(int slot, ItemStack stack);
     }
 }

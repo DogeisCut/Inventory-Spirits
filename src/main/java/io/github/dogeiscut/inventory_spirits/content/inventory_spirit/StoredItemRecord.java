@@ -11,6 +11,30 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public record StoredItemRecord(ItemStack stack, Category category, int originalSlot, String subType) {
+    public StoredItemRecord(ItemStack stack, Category category, int originalSlot, String subType) {
+        this.stack = stack.copy();
+        this.category = category;
+        this.originalSlot = originalSlot;
+        this.subType = subType;
+    }
+
+    public static StoredItemRecord load(CompoundTag tag, HolderLookup.Provider registries) {
+        ItemStack stack = ItemStack.parseOptional(registries, tag.getCompound("Item"));
+        Category category = Category.fromNbt(tag.getString("Category"));
+        int slot = tag.getInt("OriginalSlot");
+        String subType = tag.getString("SubType");
+        return new StoredItemRecord(stack, category, slot, subType);
+    }
+
+    public CompoundTag save(HolderLookup.Provider registries) {
+        CompoundTag tag = new CompoundTag();
+        tag.put("Item", this.stack.save(registries));
+        tag.putString("Category", this.category.getSerializedName());
+        tag.putInt("OriginalSlot", this.originalSlot);
+        tag.putString("SubType", this.subType);
+        return tag;
+    }
+
     public enum Category implements StringRepresentable {
         INVENTORY("inventory"),
         CURIOS("curios"),
@@ -25,11 +49,6 @@ public record StoredItemRecord(ItemStack stack, Category category, int originalS
             this.serializedName = serializedName;
         }
 
-        @Override
-        public String getSerializedName() {
-            return serializedName;
-        }
-
         static Category fromNbt(String value) {
             Category category = BY_NAME.get(value);
             if (category == null) {
@@ -38,29 +57,10 @@ public record StoredItemRecord(ItemStack stack, Category category, int originalS
             }
             return category;
         }
-    }
 
-    public StoredItemRecord(ItemStack stack, Category category, int originalSlot, String subType) {
-        this.stack = stack.copy();
-        this.category = category;
-        this.originalSlot = originalSlot;
-        this.subType = subType;
-    }
-
-    public CompoundTag save(HolderLookup.Provider registries) {
-        CompoundTag tag = new CompoundTag();
-        tag.put("Item", this.stack.save(registries));
-        tag.putString("Category", this.category.getSerializedName());
-        tag.putInt("OriginalSlot", this.originalSlot);
-        tag.putString("SubType", this.subType);
-        return tag;
-    }
-
-    public static StoredItemRecord load(CompoundTag tag, HolderLookup.Provider registries) {
-        ItemStack stack = ItemStack.parseOptional(registries, tag.getCompound("Item"));
-        Category category = Category.fromNbt(tag.getString("Category"));
-        int slot = tag.getInt("OriginalSlot");
-        String subType = tag.getString("SubType");
-        return new StoredItemRecord(stack, category, slot, subType);
+        @Override
+        public String getSerializedName() {
+            return serializedName;
+        }
     }
 }

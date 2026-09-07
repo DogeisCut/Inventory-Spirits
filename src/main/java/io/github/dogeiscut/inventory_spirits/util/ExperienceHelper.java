@@ -4,6 +4,11 @@ import net.minecraft.world.entity.player.Player;
 
 public final class ExperienceHelper {
 
+    // TODO (Next Release): Config option
+    public static final int VANILLA_DEATH_XP_PER_LEVEL = 7;
+    // TODO (Next Release): Config option
+    public static final int VANILLA_DEATH_XP_CAP = 100;
+
     private ExperienceHelper() {
     }
 
@@ -40,11 +45,6 @@ public final class ExperienceHelper {
             return 0f;
         return (totalExperience - xpAtLevelStart) / (float) xpForThisLevel;
     }
-
-    // TODO (Next Release): Config option
-    public static final int VANILLA_DEATH_XP_PER_LEVEL = 7;
-    // TODO (Next Release): Config option
-    public static final int VANILLA_DEATH_XP_CAP = 100;
 
     public static int getVanillaDeathExperience(int totalExperience) {
         int level = getLevelForExperience(totalExperience);

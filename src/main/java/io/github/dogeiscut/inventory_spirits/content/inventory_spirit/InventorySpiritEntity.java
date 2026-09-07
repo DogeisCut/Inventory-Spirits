@@ -27,14 +27,15 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
-import net.minecraft.world.entity.projectile.windcharge.WindCharge;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.Nullable;
@@ -174,7 +175,7 @@ public class InventorySpiritEntity extends Entity {
         if (this.isRemoved()) return;
 
         for (StoredItemRecord storedItem : storedItems) {
-            this.spawnAtLocation(storedItem.stack().copy(), getBbHeight()/2.0f);
+            this.spawnAtLocation(storedItem.stack().copy(), getBbHeight() / 2.0f);
         }
         if (this.totalExperience > 0 && this.level() instanceof ServerLevel serverLevel) {
             ExperienceOrb.award(serverLevel, this.position(), this.totalExperience);
@@ -353,8 +354,10 @@ public class InventorySpiritEntity extends Entity {
         }
         if (compoundTag.hasUUID("Owner")) this.setOwner(compoundTag.getUUID("Owner"));
         if (compoundTag.contains("TotalExperience")) this.totalExperience = compoundTag.getInt("TotalExperience");
-        if (compoundTag.contains("AccumulatedDamage")) this.accumulatedDamage = compoundTag.getFloat("AccumulatedDamage");
-        if (compoundTag.contains("SpawnEffectsPlayed")) this.spawnEffectsPlayed = compoundTag.getBoolean("SpawnEffectsPlayed");
+        if (compoundTag.contains("AccumulatedDamage"))
+            this.accumulatedDamage = compoundTag.getFloat("AccumulatedDamage");
+        if (compoundTag.contains("SpawnEffectsPlayed"))
+            this.spawnEffectsPlayed = compoundTag.getBoolean("SpawnEffectsPlayed");
         if (compoundTag.contains("DeathTime")) this.deathTime = compoundTag.getLong("DeathTime");
         if (compoundTag.contains("DeathX")) this.deathX = compoundTag.getDouble("DeathX");
         if (compoundTag.contains("DeathY")) this.deathY = compoundTag.getDouble("DeathY");
@@ -399,8 +402,8 @@ public class InventorySpiritEntity extends Entity {
                 double nextX = Mth.lerp(1.0d / this.lerpSteps, this.getX(), this.lerpX);
                 double nextY = Mth.lerp(1.0d / this.lerpSteps, this.getY(), this.lerpY);
                 double nextZ = Mth.lerp(1.0d / this.lerpSteps, this.getZ(), this.lerpZ);
-                float nextYRot = (float) Mth.lerp(1.0d / this.lerpSteps, (double) this.getYRot(), (double) this.lerpYRot);
-                float nextXRot = (float) Mth.lerp(1.0d / this.lerpSteps, (double) this.getXRot(), (double) this.lerpXRot);
+                float nextYRot = (float) Mth.lerp(1.0d / this.lerpSteps, this.getYRot(), this.lerpYRot);
+                float nextXRot = (float) Mth.lerp(1.0d / this.lerpSteps, this.getXRot(), this.lerpXRot);
                 this.lerpSteps--;
                 this.setPos(nextX, nextY, nextZ);
                 this.setRot(nextYRot, nextXRot);
@@ -408,7 +411,7 @@ public class InventorySpiritEntity extends Entity {
 
             if (this.tickCount % 5 == 0) {
                 double offsetX = (this.random.nextDouble() - 0.5d) * 0.25d;
-                double offsetY = getBbHeight()/2.0f - (this.random.nextDouble() - 0.5d) * 0.25d;
+                double offsetY = getBbHeight() / 2.0f - (this.random.nextDouble() - 0.5d) * 0.25d;
                 double offsetZ = (this.random.nextDouble() - 0.5d) * 0.25d;
 
                 double speedX = (this.random.nextDouble() - 0.5d) * 0.05d;
@@ -524,6 +527,7 @@ public class InventorySpiritEntity extends Entity {
             playSound(ISSoundEvents.SPIRIT_AMBIENT.get(), 1.0f, randomPitch);
         }
     }
+
     private void playCollectEffects() {
         if (!(this.level() instanceof ServerLevel serverLevel)) return;
         float randomPitch = 0.8F + random.nextFloat() * 0.4F;

@@ -11,7 +11,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public class ISParticles {
     public static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister.create(Registries.PARTICLE_TYPE, InventorySpirits.ID);
 
-    public static final DeferredHolder<ParticleType<?>, SimpleParticleType>  INVENTORY_SPIRIT_DUST =
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> INVENTORY_SPIRIT_DUST =
             PARTICLES.register("inventory_spirit_dust", () -> new SimpleParticleType(false));
 
     public static void register(IEventBus modEventBus) {

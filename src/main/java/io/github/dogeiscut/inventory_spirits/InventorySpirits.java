@@ -20,6 +20,7 @@ public class InventorySpirits {
     public static final String ID = "inventory_spirits";
 
     public static final Logger LOGGER = LogUtils.getLogger();
+
     public InventorySpirits(IEventBus modEventBus, ModContainer modContainer) {
 
         ISEntities.register(modEventBus);
