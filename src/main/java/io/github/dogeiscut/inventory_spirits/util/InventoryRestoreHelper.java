@@ -67,13 +67,13 @@ public final class InventoryRestoreHelper {
             return;
         }
 
-        if (ISConfig.kickItemsFromOriginalSlot) {
-            ItemStack itemToKick = current.copy();
-            slots.set(slot, stack.copy());
-            safeGiveOrDrop(player, itemToKick);
-        } else {
+//        if (ISConfig.kickItemsFromOriginalSlot) {
+//            ItemStack itemToKick = current.copy();
+//            slots.set(slot, stack.copy());
+//            safeGiveOrDrop(player, itemToKick);
+//        } else {
             safeGiveOrDrop(player, stack);
-        }
+//        }
     }
 
     public static void safeGiveOrDrop(Player player, ItemStack stack) {
