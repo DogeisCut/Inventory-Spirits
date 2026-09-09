@@ -44,10 +44,7 @@ public class PlayerDeathEventHandler {
             if (subLevel != null) {
                 Vec3 plotLocalPos = subLevel.logicalPose().transformPositionInverse(deathPos);
 
-                ((EntityStickExtension) entity).sable$setPlotPosition(plotLocalPos);
-
-                Vec3 worldPos = subLevel.logicalPose().transformPosition(plotLocalPos);
-                entity.moveTo(worldPos.x, worldPos.y, worldPos.z, player.getYRot(), player.getXRot());
+                entity.moveTo(plotLocalPos.x, plotLocalPos.y, plotLocalPos.z, player.getYRot(), player.getXRot());
                 level.addFreshEntity(entity);
                 return;
             }

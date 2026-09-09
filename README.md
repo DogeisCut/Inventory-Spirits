@@ -19,11 +19,9 @@ Cosmetic armor will properly be returned to the slot they were in before death, 
 
 - Sable
 
-Spirits will track to sub-levels if a player dies on one.
+Spirits will attach to sub-levels if a player dies on one.
 
-Well, they are supposed to anyway. It's a bit buggy at the moment,
-and they interact and lerp really weirdly with sub-levels.
-I'm completely lost on how to fix it at this point.
+They generally act really weird against sub-levels outside of this, however. 
 
 - Jade
 
