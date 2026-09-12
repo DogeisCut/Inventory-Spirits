@@ -24,6 +24,7 @@ forgoe the whole retaining in sublevels thing
 - [X] Testing, (with friends!!)
   - [ ] BUG: spirit will be invisible if it was made outside of a client's loaded chunks
     - [ ] And rareley just randomly????
+    - Cant reproduce, saving for next release
 will come back if you leave the area and come back.
   - [X] BUG(?): potential dupe with main armor slots and curios? Seemingly was a fluke/friend not paying attention though.
     - [X] Unable to reproduce, worth adding some additional dupe precautions though
@@ -31,6 +32,7 @@ will come back if you leave the area and come back.
   - [X] BUG: Spirits tracking a sub-level build up velocity below the void/in lava (they should just ignore it) 
 - [ ] make spirits unable to leave sub-level bounds while attached/inside to one (or prevent movement at all)
   - Current code was written for tracking, which spirits dont do anymore
+  - im too lazy to fix this ATM im just gonna release the mod...
 
 # Next Release
 - [ ] Cool spawn animation, like synced with player death or smth
